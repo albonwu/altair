@@ -38,9 +38,16 @@ export default function ExplorerPage() {
       <div className="flex flex-col flex-grow h-[30rem] outline outline-2 outline-red-500 gap-2">
         {getParentLevels(path).map((x) => (
           <div key={x} className="flex w-full justify-center">
-            <StarIcon className="size-8" /> {x}
+            <button
+              className="flex flex-col items-center"
+              onClick={() => handleNodeClick(x)}
+            >
+              <StarIcon className="size-8" />
+              {x}
+            </button>
           </div>
         ))}
+
         {info && "children" in info && (
           <div className="flex w-full justify-center gap-4">
             {info.children.map(({ name, type }) => {
