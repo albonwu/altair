@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 const StarryBackground = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const stars: any[] = [];
-    let prevMouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    let prevMouse = { x: 0, y: 0};
     let shift = { x: 0, y: 0 };
     const [isClient, setIsClient] = useState(false);
 
