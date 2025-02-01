@@ -1,4 +1,5 @@
 import { Link } from "@heroui/link";
+import NextLink from "next/link"
 import { Snippet } from "@heroui/snippet";
 import { Code } from "@heroui/code";
 import {Button, ButtonGroup} from "@heroui/button";
@@ -28,14 +29,13 @@ export default function Home() {
       </div>
 
       <div className="flex gap-4" color="blue">
-        <Link
-          isExternal
-          href={"https://waning.dev/"}
+        <NextLink
+          href={"/overview"}
         >
           <Button color="primary">
           Browse!
           </Button>
-        </Link>
+        </NextLink>
       </div>
       <div className="mt-8">
         <Snippet hideCopyButton hideSymbol variant="bordered">
