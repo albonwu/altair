@@ -8,9 +8,12 @@ import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
 import {Input} from "@heroui/input";
 
+import StarryBackground from "./starry_background";
+
 export default function Home() {
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+      <StarryBackground/>
       <div className="inline-block max-w-xl text-center justify-center">
         <span className={title({ color: "blue" })}>Supercharge&nbsp;</span>
         <span className={title()}>your&nbsp;</span>
