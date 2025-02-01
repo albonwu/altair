@@ -27,6 +27,22 @@ def hello_world():
     return "<p>Hello, World!</p>"
 
 
+def traverse_to_tree(path):
+    os.chdir(path)
+    tree = {}
+    for parent, dirs, files in os.walk("."):
+        if any(dir == ".git" for dir in parent.split("/")):
+            continue
+        print(f"{parent, dirs, files = }")
+        tree[parent] = {"name": parent, "type": "dir", "children": []}
+        for dir in dirs:
+            tree[parent]["children"].append({"name": dir, "type": "dir"})
+        for file in files:
+            tree[parent]["children"].append({"name": file, "type": "file"})
+
+    return tree
+
+
 def analyze_repo(username: str, repo: str):
     print(f"{username = }")
     print(f"{repo = }")
@@ -71,6 +87,7 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
-    analyze_repo(username, repo)
+    # analyze_repo(username, repo)
+    return traverse_to_tree(".")
 
-    return f"<h1>{username}</h1><h2>{repo}</h2>"
+    # return f"<h1>{username}</h1><h2>{repo}</h2>"
