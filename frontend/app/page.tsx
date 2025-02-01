@@ -1,6 +1,7 @@
 import { Link } from "@heroui/link";
 import { Snippet } from "@heroui/snippet";
 import { Code } from "@heroui/code";
+import {Button, ButtonGroup} from "@heroui/button";
 import { button as buttonStyles } from "@heroui/theme";
 
 import { siteConfig } from "@/config/site";
@@ -21,26 +22,25 @@ export default function Home() {
         </div>
       </div>
 
-      {/*
-      <div className="flex gap-3">
-        <Link
-          isExternal
-          className={buttonStyles({ variant: "bordered", radius: "full" })}
-          href={siteConfig.links.github}
-        >
-          <GithubIcon size={20} />
-          GitHub
-        </Link>
-      </div>
-*/}
-      <div className="flex gap-1 w-96">
-      <Input label="GitHub URL" type="url"/>
+
+      <div className="flex gap-1 w-96 mt-4">
+      <Input placeholder="GitHub URL" type="url" startContent={<GithubIcon size={20}/>} />
       </div>
 
+      <div className="flex gap-4" color="blue">
+        <Link
+          isExternal
+          href={"https://waning.dev/"}
+        >
+          <Button color="primary">
+          Browse!
+          </Button>
+        </Link>
+      </div>
       <div className="mt-8">
         <Snippet hideCopyButton hideSymbol variant="bordered">
           <span>
-            Or get started by replacing <Code color="primary">github.com</Code> in your repository's URL with <Code color="secondary">wayne.com</Code>
+            Or get started by replacing <Code>github.com</Code> in your repository's URL with <Code color="primary">wayne.com</Code>
           </span>
         </Snippet>
       </div>
