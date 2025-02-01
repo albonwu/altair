@@ -4,8 +4,7 @@ import type { Filetree, FileEntry, DirEntry } from "@/types/index";
 import { useEffect, useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
 
-import FileNode from "@/components/FileNode";
-import DirNode from "@/components/DirNode";
+import TreeNode from "@/components/TreeNode";
 
 export default function ExplorerPage() {
   const [filetree, setFiletree] = useState<Filetree | null>(null);
@@ -63,25 +62,15 @@ export default function ExplorerPage() {
               {levelInfo.children.map(({ name, type }) => {
                 const fullName = partialPath + "/" + name;
 
-                if (type === "file") {
-                  return (
-                    <FileNode
-                      key={fullName}
-                      active={path.startsWith(fullName)}
-                      name={name}
-                      onClick={() => handleNodeClick(fullName)}
-                    />
-                  );
-                } else {
-                  return (
-                    <DirNode
-                      key={fullName}
-                      active={path.startsWith(fullName)}
-                      name={name}
-                      onClick={() => handleNodeClick(fullName)}
-                    />
-                  );
-                }
+                return (
+                  <TreeNode
+                    key={fullName}
+                    active={path.startsWith(fullName)}
+                    name={name}
+                    type={type}
+                    onClick={() => handleNodeClick(fullName)}
+                  />
+                );
               })}
             </div>
           );
