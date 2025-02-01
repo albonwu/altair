@@ -1,6 +1,7 @@
-from flask import Flask, jsonify, request
 
+from flask import Flask, jsonify, request
 import requests
+from flask_cors import CORS
 
 import subprocess
 import os
@@ -12,6 +13,7 @@ from pymongo.server_api import ServerApi
 uri = "mongodb+srv://albonwu:albonwu@spartahack.ntkru.mongodb.net/?retryWrites=true&w=majority&appName=spartahack"
 
 app = Flask(__name__)
+CORS(app)
 STARTING_DIR = os.getcwd()
 
 # Create a new client and connect to the server
@@ -93,7 +95,7 @@ def analyze_repo(username: str, repo: str):
 
 @app.route("/<username>/<repo>")
 def repo(username: str, repo: str):
-    if not os.access("files", os.W_OK):
+    if not os.access(f"{STARTING_DIR}/files", os.W_OK):
         os.mkdir(f"{STARTING_DIR}/files")
     os.chdir(f"{STARTING_DIR}/files")
 
