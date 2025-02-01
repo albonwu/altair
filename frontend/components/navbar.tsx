@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Navbar as HeroUINavbar,
   NavbarContent,
@@ -13,6 +15,7 @@ import { Link } from "@heroui/link";
 import { Input } from "@heroui/input";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
+import { usePathname } from 'next/navigation';
 import clsx from "clsx";
 
 import { siteConfig } from "@/config/site";
@@ -27,6 +30,7 @@ import {
 } from "@/components/icons";
 
 export const Navbar = () => {
+    const pathname = usePathname();
   const searchInput = (
     <Input
       aria-label="Search"
@@ -47,17 +51,22 @@ export const Navbar = () => {
       type="search"
     />
   );
+  let pageTitle;
+  if (pathname == '/') {
+    pageTitle = "wayne"
+  } else if (pathname == '/explorer') {
+      pageTitle = "Explorer"
+  } else {
+      pageTitle = ""
+  }
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
-            <p className="font-bold text-inherit">ACME</p>
-          </NextLink>
+            <p className="font-bold text-inherit text-2xl">{pageTitle}</p>
         </NavbarBrand>
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
+        {/*<ul className="hidden lg:flex gap-4 justify-start ml-2">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
               <NextLink
@@ -72,9 +81,11 @@ export const Navbar = () => {
               </NextLink>
             </NavbarItem>
           ))}
-        </ul>
+        </ul>*/}
       </NavbarContent>
 
+      {pageTitle == "wayne" &&
+          <>
       <NavbarContent
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
@@ -86,8 +97,8 @@ export const Navbar = () => {
           <ThemeSwitch />
         </NavbarItem>
         {/*<NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>*/}
-        <NavbarItem className="hidden md:flex">
-          <Button
+        {/*<NavbarItem className="hidden md:flex">
+        <Button
             isExternal
             as={Link}
             className="text-sm font-normal text-default-600 bg-default-100"
@@ -97,7 +108,7 @@ export const Navbar = () => {
           >
             Sponsor
           </Button>
-        </NavbarItem>
+        </NavbarItem>*/}
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
@@ -107,7 +118,6 @@ export const Navbar = () => {
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
-
       <NavbarMenu>
         {searchInput}
         <div className="mx-4 mt-2 flex flex-col gap-2">
@@ -130,6 +140,8 @@ export const Navbar = () => {
           ))}
         </div>
       </NavbarMenu>
+      </>}
+      
     </HeroUINavbar>
   );
 };
