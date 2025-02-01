@@ -3,5 +3,5 @@ export default function ExplorerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <section>{children}</section>;
+  return <>{children}</>;
 }

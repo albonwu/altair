@@ -27,4 +27,5 @@ export interface Filetree {
 export interface NodeArguments {
   name: string;
   onClick: any;
+  active: boolean;
 }

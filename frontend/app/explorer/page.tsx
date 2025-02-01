@@ -34,46 +34,60 @@ export default function ExplorerPage() {
   const info = filetree?.[path];
 
   return (
-    <div className="flex items-stretch justify-center gap-4 w-full">
-      <div className="flex flex-col flex-grow h-[30rem] outline outline-2 outline-red-500 gap-2 overflow-scroll">
-        {getParentLevels(path).map((x) => (
-          <div key={x} className="flex w-full justify-center">
-            <button
-              className="flex flex-col items-center"
-              onClick={() => handleNodeClick(x)}
+    <div
+      className="flex items-stretch justify-center gap-4 w-full"
+      style={{ height: "80vh" }}
+    >
+      <div className="flex flex-grow h-full outline outline-2 outline-red-500 gap-4 overflow-scroll px-4">
+        <div className="flex flex-col h-full justify-center gap-4">
+          <button
+            className="flex items-center flex-col"
+            onClick={() => handleNodeClick(".")}
+          >
+            <StarIcon className="size-8" />.
+          </button>
+        </div>
+
+        {getParentLevels(path).map((partialPath) => {
+          let levelInfo = filetree?.[partialPath];
+
+          if (!levelInfo || !("children" in levelInfo)) {
+            return <div key={partialPath} />;
+          }
+
+          return (
+            <div
+              key={partialPath}
+              className="flex flex-col h-full justify-center gap-4"
             >
-              <StarIcon className="size-8" />
-              {x}
-            </button>
-          </div>
-        ))}
+              {levelInfo.children.map(({ name, type }) => {
+                const fullName = partialPath + "/" + name;
 
-        {info && "children" in info && (
-          <div className="flex w-full justify-center gap-4">
-            {info.children.map(({ name, type }) => {
-              const fullName = path + "/" + name;
-
-              if (type === "file") {
-                return (
-                  <FileNode
-                    key={fullName}
-                    name={name}
-                    onClick={() => handleNodeClick(fullName)}
-                  />
-                );
-              } else {
-                return (
-                  <DirNode
-                    key={fullName}
-                    name={name}
-                    onClick={() => handleNodeClick(fullName)}
-                  />
-                );
-              }
-            })}
-          </div>
-        )}
+                if (type === "file") {
+                  return (
+                    <FileNode
+                      key={fullName}
+                      active={path.startsWith(fullName)}
+                      name={name}
+                      onClick={() => handleNodeClick(fullName)}
+                    />
+                  );
+                } else {
+                  return (
+                    <DirNode
+                      key={fullName}
+                      active={path.startsWith(fullName)}
+                      name={name}
+                      onClick={() => handleNodeClick(fullName)}
+                    />
+                  );
+                }
+              })}
+            </div>
+          );
+        })}
       </div>
+
       <div className="flex flex-none w-[25rem] outline outline-2 outline-red-500">
         preview box
       </div>
