@@ -1,4 +1,6 @@
-from flask import Flask
+
+from flask import Flask, jsonify, request
+import requests
 from flask_cors import CORS
 
 import subprocess
@@ -8,7 +10,7 @@ from pathlib import Path
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-uri = "mongodb+srv://waning:TWm1cHIcMeOSKrMn@test.6qrwr.mongodb.net/?retryWrites=true&w=majority&appName=test"
+uri = "mongodb+srv://albonwu:albonwu@spartahack.ntkru.mongodb.net/?retryWrites=true&w=majority&appName=spartahack"
 
 app = Flask(__name__)
 CORS(app)
@@ -16,7 +18,8 @@ STARTING_DIR = os.getcwd()
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi("1"))
-
+db = client["spartahack"]
+collection = db["files"]
 
 @app.route("/")
 def hello_world():
@@ -27,6 +30,32 @@ def hello_world():
     except Exception as e:
         print(e)
     return "<p>Hello, World!</p>"
+
+def get_file_code(owner, repo, file_path):
+    url = f"https://raw.githubusercontent.com/{owner}/{repo}/main/{file_path}"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        return response.text
+    else:
+        return f"Error: {response.status_code} - {response.text}"
+
+@app.route("/file/<path:file_path>", methods=["GET"])
+def get_file(file_path):
+    file_doc = collection.find_one({"path": file_path})
+    if file_doc:
+        del file_doc["_id"]
+        file_doc["code"] = get_file_code("Ecpii", "bloch-m", "src/App.vue")
+        return jsonify(file_doc)
+    return jsonify({"error": "File not found"}), 404
+
+#@app.route("/code/<path:file_path>", methods=["GET"])
+#def get_code(file_path):
+#    file_doc = collection.find_one({"path": file_path})
+#    if file_doc:
+#        print(file_doc)
+#        return jsonify(file_doc)
+#    return jsonify({"error": "File not found"}), 404
 
 
 def traverse_to_tree(path):
