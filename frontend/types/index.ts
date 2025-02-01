@@ -23,3 +23,8 @@ export interface Filetree {
   [key: string]: FileEntry | DirEntry;
   string: FileEntry | DirEntry;
 }
+
+export interface NodeArguments {
+  name: string;
+  onClick: any;
+}

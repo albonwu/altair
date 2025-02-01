@@ -3,6 +3,7 @@ import type { Filetree, FileEntry, DirEntry } from "@/types/index";
 
 import { useEffect, useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
+
 import FileNode from "@/components/FileNode";
 import DirNode from "@/components/DirNode";
 
@@ -42,13 +43,27 @@ export default function ExplorerPage() {
         ))}
         {info && "children" in info && (
           <div className="flex w-full justify-center gap-4">
-            {info.children.map(({ name, type }) =>
-              type === "file" ? (
-                <FileNode key={path + "/" + name} name={name} />
-              ) : (
-                <DirNode key={path + "/" + name} name={name} />
-              )
-            )}
+            {info.children.map(({ name, type }) => {
+              const fullName = path + "/" + name;
+
+              if (type === "file") {
+                return (
+                  <FileNode
+                    key={fullName}
+                    name={name}
+                    onClick={() => handleNodeClick(fullName)}
+                  />
+                );
+              } else {
+                return (
+                  <DirNode
+                    key={fullName}
+                    name={name}
+                    onClick={() => handleNodeClick(fullName)}
+                  />
+                );
+              }
+            })}
           </div>
         )}
       </div>
@@ -57,6 +72,11 @@ export default function ExplorerPage() {
       </div>
     </div>
   );
+
+  function handleNodeClick(path: string) {
+    console.log("path", path);
+    setPath(path);
+  }
 
   function getParentLevels(path: string) {
     const parts = path.split("/");
