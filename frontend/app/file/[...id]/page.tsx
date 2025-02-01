@@ -1,5 +1,6 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import FileCard from "@/components/FileCard";
 
 async function getFileContent(id: any) {
   const res = await fetch(`http://127.0.0.1:5000/code/${id.join("/")}`, { cache: 'no-store' });
@@ -14,6 +15,27 @@ async function getFileContent(id: any) {
 export default async function ProductPage({ params }: { params: { id: string[] } }) {
   let content;
 
+  const customTheme = {
+    'code[class*="language-"]': {
+      background: "#1E1E2E", // Match dark one background
+      color: "#cdd6f4", // Light grayish text
+      fontFamily: "'Fira Code', monospace",
+      fontSize: "14px",
+    },
+    'pre[class*="language-"]': {
+      background: "#1E1E2E",
+      padding: "16px",
+      borderRadius: "16px",
+      overflow: "auto",
+      border: "1px solid #313244",
+    },
+    comment: { color: "#6C7086" }, // Dimmed gray for comments
+    keyword: { color: "#F7768E" }, // Keywords like `import`, `export`
+    function: { color: "#82AAFF" }, // Function names
+    string: { color: "#C3E88D" }, // String literals
+    number: { color: "#FFCB6B" }, // Numbers
+  };
+
   try {
     content = await getFileContent(params.id);
   } catch (error) {
@@ -24,24 +46,24 @@ export default async function ProductPage({ params }: { params: { id: string[] }
   const clean = safe.startsWith('"') ? JSON.parse(safe) : safe;
   
   return (
-    <div>
-    <div className="relative w-[50rem] bg-gray-900 text-white rounded-lg overflow-x-auto">
-      <SyntaxHighlighter
-        language={"javascript"}
-        style={oneDark}
-        showLineNumbers={true}
-        wrapLongLines={true}
-        wrapLines={true}
-        customStyle={{ fontSize: "14px" }}
-      >
-      {clean}
-      </SyntaxHighlighter>
-    </div>
-      <h1>File: {params.id}</h1>
-          <pre className="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
-      <code>{content}</code>
-    </pre>
-    </div>
+    <>
+        <div className="flex flex-row gap-[5rem]">
+            <div className="relative w-[50rem] bg-gray-900 text-white rounded-2xl overflow-x-auto">
+                <SyntaxHighlighter
+                    language={"javascript"}
+                    showLineNumbers={true}
+                    wrapLongLines={true}
+                    wrapLines={true}
+                    customStyle={{ fontSize: "14px" }}
+                    style={customTheme}
+                >
+                    {clean}
+                </SyntaxHighlighter>
+            </div>
+
+            <FileCard />
+        </div>
+    </>
   );
 }
 
