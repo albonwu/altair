@@ -2,6 +2,7 @@ from flask import Flask
 
 import subprocess
 import os
+from pathlib import Path
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -30,8 +31,19 @@ def analyze_repo(username: str, repo: str):
     print(f"{username = }")
     print(f"{repo = }")
 
-    for file in os.listdir("."):
-        pass
+    env = {}
+
+    for parent, dirs, files in os.walk(".", topdown=False):
+        if any(dir == ".git" for dir in parent.split("/")):
+            continue
+        print(f"{parent, dirs, files = }")
+        env[parent] = {"children": []}
+        for file in files:
+            env[parent]["children"].append(file)
+            full_path = parent + "/" + file
+            env[full_path] = {"file": True}
+
+    print(f"{env = }")
 
 
 @app.route("/<username>/<repo>")
@@ -59,6 +71,6 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
-    analyze_repo()
+    analyze_repo(username, repo)
 
     return f"<h1>{username}</h1><h2>{repo}</h2>"
