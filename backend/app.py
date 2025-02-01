@@ -3,13 +3,35 @@ from flask import Flask
 import subprocess
 import os
 
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+uri = "mongodb+srv://waning:TWm1cHIcMeOSKrMn@test.6qrwr.mongodb.net/?retryWrites=true&w=majority&appName=test"
+
 app = Flask(__name__)
 STARTING_DIR = os.getcwd()
+
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi("1"))
 
 
 @app.route("/")
 def hello_world():
+    # Send a ping to confirm a successful connection
+    try:
+        client.admin.command("ping")
+        print("Pinged your deployment. You successfully connected to MongoDB!")
+    except Exception as e:
+        print(e)
     return "<p>Hello, World!</p>"
+
+
+def analyze_repo(username: str, repo: str):
+    print(f"{username = }")
+    print(f"{repo = }")
+
+    for file in os.listdir("."):
+        pass
 
 
 @app.route("/<username>/<repo>")
@@ -37,5 +59,6 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
+    analyze_repo()
 
     return f"<h1>{username}</h1><h2>{repo}</h2>"
