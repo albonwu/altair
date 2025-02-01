@@ -35,7 +35,7 @@ export default function ExplorerPage() {
 
   return (
     <div className="flex items-stretch justify-center gap-4 w-full">
-      <div className="flex flex-col flex-grow h-[30rem] outline outline-2 outline-red-500 gap-2">
+      <div className="flex flex-col flex-grow h-[30rem] outline outline-2 outline-red-500 gap-2 overflow-scroll">
         {getParentLevels(path).map((x) => (
           <div key={x} className="flex w-full justify-center">
             <button
@@ -74,7 +74,7 @@ export default function ExplorerPage() {
           </div>
         )}
       </div>
-      <div className="flex w-[25rem] h-[30rem] outline outline-2 outline-red-500">
+      <div className="flex flex-none w-[25rem] outline outline-2 outline-red-500">
         preview box
       </div>
     </div>
