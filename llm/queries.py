@@ -60,7 +60,7 @@ def chat_init(repo_url: str) -> None:
     chat_session.send_message(f"{message}\n{file_in_memory.getvalue()}")
 
 
-def query_overview():
+def query_overview(_):
     """
     Returns the text of the detailed summary of the overall github repo
     """
@@ -68,7 +68,7 @@ def query_overview():
     return response.text
 
 
-def query_roadmap():
+def query_roadmap(_):
     """
     Returns the text of the suggested overall roadmap 
     """
