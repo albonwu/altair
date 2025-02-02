@@ -47,16 +47,16 @@ export const Navbar = () => {
   let splitPathname: string[] = [];
 
   if (clientPath === '/') {
-    pageTitle = "wayne";
+    pageTitle = "Altair";
   } else if (clientPath === '/explorer') {
     pageTitle = "Explorer";
   } else {
     splitPathname = ['/', ...clientPath.split("/").slice(2)];  // remove prefix and 'file'
     pageTitle = splitPathname[splitPathname.length - 1];
     isFile = true;
+  pageTitle = "albonwu/cascade"  // hardcoded for now
   }
 
-  pageTitle = "Ecpii/bloch-m"  // hardcoded for now
 
   return (
     <HeroUINavbar maxWidth="xl" className="p-4">
