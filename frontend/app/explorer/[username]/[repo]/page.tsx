@@ -83,9 +83,9 @@ export default function ExplorerPage() {
                     active={path.startsWith(fullName)}
                     className={`${
                       path === fullName
-                        ? "text-yellow-400"
+                        ? "text-yellow-400 drop-shadow-[0_12px_12px_rgba(250,196,17,0.5)]"
                         : "text-white"
-                    } transition-all duration-200 hover:opacity-100`}
+                    } transition-all duration-300 hover:opacity-100`}
                     name={name}
                     type={type}
                     onClick={() => handleNodeClick(fullName)}
