@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CodeBracketIcon, FireIcon, StarIcon } from "@heroicons/react/24/solid";
 import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
@@ -22,6 +23,8 @@ export default function ExplorerPage() {
     "Welcome to the Explorer! Click on any node to get started."
   );
   const [descriptionLoading, setDescriptionLoading] = useState<boolean>(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -148,7 +151,11 @@ export default function ExplorerPage() {
         </CardBody>
         <Divider />
         <CardFooter className="flex w-full justify-center">
-          <button className="text-xl" onClick={() => jumpToFullPage()}>
+          <button
+            className="text-xl disabled:opacity-50"
+            disabled={path === "."}
+            onClick={() => jumpToFullPage()}
+          >
             View Source
           </button>
         </CardFooter>
@@ -159,7 +166,9 @@ export default function ExplorerPage() {
   function jumpToFullPage() {
     const cutPath = path.substring(2);
 
-    window.location.href = window.location.origin + "/file/" + cutPath;
+    router.push(`/file/${cutPath}`);
+
+    // window.location.href = window.location.origin + "/file/" + cutPath;
   }
 
   async function handleNodeClick(path: string) {
