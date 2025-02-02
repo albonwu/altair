@@ -14,6 +14,7 @@ from llm.queries import (
     query_overview,
     query_roadmap,
     query_fd,
+    query_dependencies
 )
 
 from analysis import (
@@ -209,6 +210,7 @@ functions = {
     "overview": query_overview,
     "roadmap": query_roadmap,
     "fd": query_fd,
+    "dependencies": query_dependencies
 }
 
 
