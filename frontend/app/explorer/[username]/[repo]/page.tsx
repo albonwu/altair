@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CodeBracketIcon, FireIcon, StarIcon } from "@heroicons/react/24/solid";
 import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
 import { Divider, Skeleton } from "@heroui/react";
+import Xarrow from "react-xarrows";
 
 import { FileMetadata, type Filetree } from "@/types/index";
 import TreeNode from "@/components/TreeNode";
@@ -56,13 +57,14 @@ export default function ExplorerPage() {
         <div className="flex flex-col h-full justify-center gap-4">
           <button
             className="flex items-center flex-col"
+            id="node0"
             onClick={() => handleNodeClick(".")}
           >
             <StarIcon className="size-8" />
           </button>
         </div>
 
-        {getParentLevels(path).map((partialPath) => {
+        {getParentLevels(path).map((partialPath, level) => {
           let levelInfo = filetree?.[partialPath];
 
           if (!levelInfo || !("children" in levelInfo)) {
@@ -74,22 +76,41 @@ export default function ExplorerPage() {
               key={partialPath}
               className="flex flex-col h-full justify-center gap-4 pt-[3rem]"
             >
-              {levelInfo.children.map(({ name, type }) => {
+              {levelInfo.children.map(({ name, type }, index) => {
                 const fullName = partialPath + "/" + name;
 
                 return (
-                  <TreeNode
-                    key={fullName}
-                    active={path.startsWith(fullName)}
-                    className={`${
-                      path === fullName
-                        ? "text-yellow-400 drop-shadow-[0_12px_12px_rgba(250,196,17,0.5)]"
-                        : "text-white"
-                    } transition-all duration-300 hover:opacity-100`}
-                    name={name}
-                    type={type}
-                    onClick={() => handleNodeClick(fullName)}
-                  />
+                  <>
+                    <TreeNode
+                      key={fullName}
+                      active={path.startsWith(fullName)}
+                      className={`${
+                        path === fullName
+                          ? "text-yellow-400 drop-shadow-[0_12px_12px_rgba(250,196,17,0.5)]"
+                          : "text-white"
+                      } transition-all duration-300 hover:opacity-100`}
+                      id={
+                        path.startsWith(fullName)
+                          ? `node${level + 1}`
+                          : undefined
+                      }
+                      name={name}
+                      type={type}
+                      onClick={() => handleNodeClick(fullName)}
+                    />
+                    {path.startsWith(fullName) && (
+                      <Xarrow
+                        color="white"
+                        dashness={true}
+                        end={`node${level + 1}`}
+                        passProps={{ opacity: 0.75 }}
+                        path="straight"
+                        showHead={false}
+                        start={`node${level}`}
+                        strokeWidth={2}
+                      />
+                    )}
+                  </>
                 );
               })}
             </div>

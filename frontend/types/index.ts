@@ -30,6 +30,7 @@ export interface NodeArguments {
   onClick: any;
   active: boolean;
   className: string;
+  id: string | undefined;
 }
 
 export interface FileMetadata {

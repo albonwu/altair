@@ -4,6 +4,7 @@ import { NodeArguments } from "@/types";
 export default function TreeNode({
   name,
   type,
+  id,
   onClick,
   active,
   className,
@@ -12,6 +13,7 @@ export default function TreeNode({
     <button
       className={`flex items-center flex-row outline p-[5px] gap-2 rounded-xl ${className}`}
       style={{ opacity: active ? "100%" : "50%" }}
+      id={id}
       onClick={onClick}
     >
       {type == "file" ? (
