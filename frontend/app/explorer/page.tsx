@@ -87,7 +87,7 @@ export default function ExplorerPage() {
         })}
       </div>
 
-      <div className="flex flex-col flex-none w-[25rem] p-4 gap-2 bg-gray-500 bg-opacity-50">
+      <div className="flex flex-col flex-none w-[25rem] p-4 gap-2 bg-gray-500 bg-opacity-50 overflow-y-scroll">
         <h1 className="font-bold text-xl text-wrap break-all">{path}</h1>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -128,12 +128,21 @@ export default function ExplorerPage() {
               <CodeBracketIcon className="size-6" />
               <h2 className="text-lg font-bold">Code Preview</h2>
             </div>
-            <CodePreview code={selectedInfo.code} onClick={() => {}} />
+            <CodePreview
+              code={selectedInfo.code}
+              onClick={() => jumpToFullPage()}
+            />
           </>
         )}
       </div>
     </div>
   );
+
+  function jumpToFullPage() {
+    const cutPath = path.substring(2);
+
+    window.location.href = window.location.origin + "/file/" + cutPath;
+  }
 
   async function handleNodeClick(path: string) {
     console.log("path", path);
