@@ -13,13 +13,14 @@ import {
 import { Folder, FileText } from "lucide-react";
 import { Chip } from "@heroui/react";
 import { useEffect, useState } from "react";
+import NextLink from "next/link"
 
 async function getMetadata(path: string) {
   try {
     const encodedPath = encodeURIComponent(path);
     const res = await fetch(
       `http://127.0.0.1:5000/metadata/albonwu/cascade/${encodedPath}`,
-      { cache: "no-store", mode: "cors" }
+      { cache: "no-store" }
     );
 
     if (!res.ok) {
@@ -46,7 +47,6 @@ async function getSummary(path: string) {
         },
         body: JSON.stringify({ path }),
         cache: "no-store",
-        mode: "cors",
       }
     );
 
@@ -59,6 +59,33 @@ async function getSummary(path: string) {
   } catch (error) {
     console.error("Error fetching summary:", error);
     return "No summary available.";
+  }
+}
+
+async function getDependencies(path: string) {
+  try {
+    const encodedPath = encodeURIComponent(path);
+    const res = await fetch(
+      `http://127.0.0.1:5000/run/albonwu/cascade/dependencies/${encodedPath}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ path }),
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch dependencies");
+    }
+
+    const response = await res.json();
+    return response?.data || "No dependencies available.";
+  } catch (error) {
+    console.error("Error fetching dependencies:", error);
+    return "No dependencies available.";
   }
 }
 
@@ -78,6 +105,8 @@ export default function FileCard({
   } | null>(null);
 
   const [summary, setSummary] = useState<string | null>(null);
+  const [dependencies, setDependencies] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -111,8 +140,21 @@ export default function FileCard({
       }
     }
 
+    async function fetchDependencies() {
+      try {
+        const fetchedDependencies = await getDependencies(data.path);
+        if (isMounted) {
+          setDependencies(fetchedDependencies);
+          console.log(fetchedDependencies);
+        }
+      } catch (error) {
+        console.error("Error fetching summary:", error);
+      }
+    }
+
     fetchMetadata();
     fetchSummary();
+    fetchDependencies();
 
     return () => {
       isMounted = false;
@@ -148,8 +190,63 @@ export default function FileCard({
       <Divider />
       <CardBody className="flex flex-col gap-3">
         <p className="font-bold text-sm text-gray-400">Summary:</p>
-        {summary ? <p>{summary["output"]}</p> : <Skeleton className="w-full h-6" />}
+        {summary ? 
+            <>
+                <p className={expanded
+                        ? "transition-all duration-300"
+                        : "line-clamp-4 transition-all duration-300"}>
+                  {summary}
+                </p>
+                <button
+                  onClick={() => setExpanded((prev) => !prev)}
+                  className="mt-2 text-blue-500 hover:underline"
+                >
+              {expanded ? "Read less" : "Read more"}
+                 </button>
+
+        </>
+                : <Skeleton className="w-full h-6" />}
+        </CardBody>
         <Divider />
+      <CardBody className="flex flex-col gap-3">
+        <p className="font-bold text-sm text-gray-400">Dependencies:</p>
+        Backward:
+        <br />
+{dependencies && (
+  <ul>
+    {dependencies
+      .split("\n")[0]          
+      .split(",")               
+      .map((path) => path.trim())
+      .filter((path) => path.length > 0)
+      .map((path, index) => (
+        <li key={index}>
+          <NextLink href={`/file/${path}`} target="_blank" rel="noopener noreferrer">
+            {path}
+          </NextLink>
+        </li>
+      ))}
+  </ul>
+)}
+        <Divider />
+        Forward:
+        <br />
+{dependencies && (
+  <ul>
+    {dependencies
+      .split("\n")[1]          
+      .split(",")               
+      .map((path) => path.trim())
+      .filter((path) => path.length > 0)
+      .map((path, index) => (
+        <li key={index}>
+          <NextLink href={`/file/${path}`} target="_blank" rel="noopener noreferrer">
+            {path}
+          </NextLink>
+        </li>
+      ))}
+  </ul>
+)}
       </CardBody>
       <Divider />
       <CardFooter>
