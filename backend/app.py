@@ -87,6 +87,7 @@ def analyze_repo(username: str, repo: str):
             env[full_name] = {"_id": full_name}
             env[full_name]["loc"] = count_file_lines(full_name)
             env[full_name]["commits"] = count_file_commits(full_name)
+            collection.insert_one(env[full_name])
 
         for dir in dirs:
             full_name = parent + "/" + dir
@@ -95,7 +96,7 @@ def analyze_repo(username: str, repo: str):
 
             env[full_name]["loc"] = count_dir_lines(full_name, env)
             env[full_name]["commits"] = count_dir_commits(full_name, env)
-        # collection.insert_one(env[parent])
+            collection.insert_one(env[full_name])
 
     print(f"{env = }")
     return env
@@ -135,8 +136,7 @@ def repo(username: str, repo: str):
     # clone repo or update it, cd into repo
     if not os.access(repo, os.W_OK):
         subprocess.run(
-#            f"git clone git@github.com:{username}/{repo}",
-            f"git clone https://github.com/{username}/{repo}.git",
+            f"git clone git@github.com:{username}/{repo}",
             shell=True,
             check=True,
         )

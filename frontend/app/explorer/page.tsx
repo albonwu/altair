@@ -6,16 +6,19 @@ import { StarIcon } from "@heroicons/react/24/solid";
 
 import TreeNode from "@/components/TreeNode";
 
+const BACKEND_URL = "http://127.0.0.1:5000";
+const USERNAME = "albonwu";
+const REPO = "cascade";
+
 export default function ExplorerPage() {
   const [filetree, setFiletree] = useState<Filetree | null>(null);
   const [path, setPath] = useState(".");
+  const [selectedInfo, setSelectedInfo] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          "http://127.0.0.1:5000/repo/albonwu/cascade"
-        );
+        const response = await fetch(`${BACKEND_URL}/repo/${USERNAME}/${REPO}`);
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -91,13 +94,31 @@ export default function ExplorerPage() {
           pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
           culpa qui officia deserunt mollit anim id est laborum.
         </p>
+        <p>Lines of code: {selectedInfo?.loc}</p>
       </div>
     </div>
   );
 
-  function handleNodeClick(path: string) {
+  async function handleNodeClick(path: string) {
     console.log("path", path);
     setPath(path);
+
+    const cutPath = path.substring(2);
+    const response = await fetch(
+      `${BACKEND_URL}/metadata/${USERNAME}/${REPO}/${cutPath}`
+    );
+
+    if (!response.ok) {
+      console.error(`HTTP error! Status: ${response.status}`);
+
+      return;
+    }
+
+    const newSelectedInfo = await response.json();
+
+    console.log("newSelectedInfo", newSelectedInfo);
+
+    setSelectedInfo(newSelectedInfo);
   }
 
   function getParentLevels(path: string) {
