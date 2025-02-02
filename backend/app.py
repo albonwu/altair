@@ -122,6 +122,9 @@ def list_immediate_children(username, repo, directory):
         return f"Error: {e}"
 
 
+@app.route(
+    "/hottest/<username>/<repo>/", methods=["GET"], defaults={"file_path": ""}
+)
 @app.route("/hottest/<username>/<repo>/<path:file_path>", methods=["GET"])
 def get_hottest(username, repo, file_path):
     db = client[username]
