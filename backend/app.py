@@ -157,6 +157,8 @@ def get_file_information(username, repo, file_path):
 
 @app.route("/code/<username>/<repo>/<path:file_path>", methods=["GET"])
 def get_code(username, repo, file_path):
+    if os.path.isdir(file_path):
+        return {}
     return jsonify(get_file_code(username, repo, file_path))
 
 
