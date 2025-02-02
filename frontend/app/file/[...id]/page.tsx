@@ -1,18 +1,26 @@
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+
 import FileCard from "@/components/FileCard";
-import DirectoryContents from '@/components/DirectoryContents';
+import DirectoryContents from "@/components/DirectoryContents";
 
 async function getFileContent(id: any) {
-  const res = await fetch(`http://127.0.0.1:5000/code/albonwu/cascade/${id.join("/")}`, { cache: 'no-store' });
+  const res = await fetch(
+    `http://127.0.0.1:5000/code/albonwu/cascade/${id.join("/")}`,
+    { cache: "no-store" }
+  );
 
   if (!res.ok) {
-    throw new Error('Failed to fetch file');
+    throw new Error("Failed to fetch file");
   }
 
   return res.text(); // Assuming it's text content like Vue code
 }
 
-export default async function ProductPage({ params }: { params: { id: string[] } }) {
+export default async function ProductPage({
+  params,
+}: {
+  params: { id: string[] };
+}) {
   let content;
 
   const customTheme = {
@@ -39,40 +47,47 @@ export default async function ProductPage({ params }: { params: { id: string[] }
   try {
     content = await getFileContent(params.id);
   } catch (error) {
+    console.error(error);
+
     return <h1>File Not Found</h1>;
   }
 
-  const safe = typeof content === "string" ? content : JSON.stringify(content, null, 2);
+  const safe =
+    typeof content === "string" ? content : JSON.stringify(content, null, 2);
   const clean = safe.startsWith('"') ? JSON.parse(safe) : safe;
-  const dir = !params.id[params.id.length - 1].includes('.')
-  
+  const dir = !params.id[params.id.length - 1].includes(".");
+
   return (
     <>
-        <div className="flex flex-row gap-[5rem] mt-[-3rem]">
-        {dir ? 
-            <div className="w-[50rem]">
-                <DirectoryContents path={params.id.join("/")}/>
-            </div> :
-            <div className="relative w-[50rem] text-white rounded-2xl overflow-x-auto">
-                <SyntaxHighlighter
-                    language={"javascript"}
-                    showLineNumbers={true}
-                    wrapLongLines={true}
-                    wrapLines={true}
-                    customStyle={{ fontSize: "14px" }}
-                    style={customTheme}
-                >
-                    {clean}
-                </SyntaxHighlighter>
-            </div> }
+      <div className="flex flex-row gap-[5rem] mt-[-3rem]">
+        {dir ? (
+          <div className="w-[50rem]">
+            <DirectoryContents path={params.id.join("/")} />
+          </div>
+        ) : (
+          <div className="relative w-[50rem] text-white rounded-2xl overflow-x-auto">
+            <SyntaxHighlighter
+              customStyle={{ fontSize: "14px" }}
+              language={"javascript"}
+              showLineNumbers={true}
+              style={customTheme}
+              wrapLines={false}
+              wrapLongLines={false}
+            >
+              {clean}
+            </SyntaxHighlighter>
+          </div>
+        )}
 
-            <FileCard 
-            data={{ title: params.id[params.id.length - 1], path: params.id.join("/"), description: "A file. Gamers gaming gaming gaming epic pro gamer" }} 
-            isDir={dir}
-            />
-
-        </div>
+        <FileCard
+          data={{
+            title: params.id[params.id.length - 1],
+            path: params.id.join("/"),
+            description: "A file. Gamers gaming gaming gaming epic pro gamer",
+          }}
+          isDir={dir}
+        />
+      </div>
     </>
   );
 }
-
