@@ -83,11 +83,3 @@ def query_fd(fd_name):
     request = get_query("fd", fd_name)
     response = chat_session.send_message(request)
     return response.text
-
-chat_init("https://github.com/Ecpii/bloch-m")
-print("chat initialized. generating overview\n")
-print(query_overview())
-print("generating roadmap\n")
-print(query_roadmap())
-print("generating insights for /src/App.vue\n")
-print(query_fd("/src/App.vue"))
