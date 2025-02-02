@@ -33,7 +33,10 @@ export interface NodeArguments {
 }
 
 export interface FileMetadata {
+  _id: string;
   loc: number;
   commits: number;
   code: string;
+  hotness: number;
+  prs: [number];
 }

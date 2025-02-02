@@ -14,6 +14,7 @@ export default function ExplorerPage() {
   const [filetree, setFiletree] = useState<Filetree | null>(null);
   const [path, setPath] = useState(".");
   const [selectedInfo, setSelectedInfo] = useState<FileMetadata | null>(null);
+  const [hottest, setHottest] = useState<[string] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,20 +90,16 @@ export default function ExplorerPage() {
         <h1 className="font-bold text-xl text-wrap break-all">{path}</h1>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
-        <p>Lines of code: {selectedInfo?.loc}</p>
-        <p>Commits: {selectedInfo?.commits}</p>
-        {selectedInfo?.code && (
-          <>
-            <p>Code:</p>
-            <pre>{selectedInfo.code}</pre>
-          </>
+
+        <h2>Hottest Files</h2>
+        {hottest && (
+          <ul>
+            {hottest.slice(0, 5).map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
         )}
       </div>
     </div>
@@ -113,8 +110,32 @@ export default function ExplorerPage() {
     setPath(path);
 
     const cutPath = path.substring(2);
+
+    await fetchSelectedInfo(cutPath);
+    await fetchHottest(cutPath);
+  }
+
+  async function fetchHottest(path: string) {
     const response = await fetch(
-      `${BACKEND_URL}/metadata/${USERNAME}/${REPO}/${cutPath}`
+      `${BACKEND_URL}/hottest/${USERNAME}/${REPO}/${path}`
+    );
+
+    if (!response.ok) {
+      console.error(`HTTP error! Status: ${response.status}`);
+
+      setHottest(null);
+
+      return;
+    }
+
+    const hottestRawList = await response.json();
+
+    setHottest(hottestRawList.map((x: FileMetadata) => x._id));
+  }
+
+  async function fetchSelectedInfo(path: string) {
+    const response = await fetch(
+      `${BACKEND_URL}/metadata/${USERNAME}/${REPO}/${path}`
     );
 
     if (!response.ok) {
