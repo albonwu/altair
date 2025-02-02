@@ -1,5 +1,5 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import PathBreadcrumbs from "@/components/PathBreadcrumbs";
 import FileCard from "@/components/FileCard";
 
 async function getFileContent(id: any) {
@@ -47,6 +47,9 @@ export default async function ProductPage({ params }: { params: { id: string[] }
   
   return (
     <>
+        <div className="flex">
+            <PathBreadcrumbs />
+        </div>
         <div className="flex flex-row gap-[5rem]">
             <div className="relative w-[50rem] bg-gray-900 text-white rounded-2xl overflow-x-auto">
                 <SyntaxHighlighter

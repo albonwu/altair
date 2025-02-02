@@ -4,6 +4,7 @@ import {Card, CardHeader, CardBody, CardFooter, Divider, Link, Image} from "@her
 
 export default function FileCard({ data }: { data: { title: string; description: string } }) {
     return (
+        <>
       <Card className="max-w-[400px] bg-[#1E1E2E] border border-[#313244] text-[#cdd6f4] shadow-md rounded-2xl">
       <CardHeader className="flex gap-3">
         <Image
@@ -28,5 +29,5 @@ export default function FileCard({ data }: { data: { title: string; description:
           Visit source code on GitHub.
         </Link>
       </CardFooter>
-    </Card>)
+    </Card></>)
 }
