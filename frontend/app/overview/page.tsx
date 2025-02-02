@@ -3,80 +3,78 @@
 import { title } from "@/components/primitives";
 import NextLink from "next/link";
 import { useState, useEffect } from "react";
+
 import {
   Pagination,
+  PaginationItem,
+  PaginationCursor,
 } from "@heroui/pagination";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Divider } from "@heroui/divider";
+import { initialize } from "next/dist/server/lib/render-server";
+import { Skeleton } from "@heroui/react";
 
-// API functions
-async function initLlm(user: string, repo: string) {
-  const res = await fetch(`http://127.0.0.1:5000/init/${user}/${repo}`, {
-    method: "POST",
-  });
-  if (res.ok) {
-    const data = await res.json();
-    return data.message;
-  }
-}
-
-async function llmGenNoInput(user: string, repo: string, query: string) {
+async function llmGenNoInput(user: any, repo: any, query: any) {
   const res = await fetch(
     `http://127.0.0.1:5000/run/${user}/${repo}/${query}`,
     {
       method: "POST",
     }
   );
+
   if (res.ok) {
     const data = await res.json();
-    console.log(data);
+
     return data.data;
   }
   return "";
 }
 
-type CardType = {
-  id: number;
-  title: string;
-  content: string;
-};
+const defaultCards = [
+  { id: 0, title: "filler", content: "" },
+  {
+    id: 1,
+    title: "Stacks used and high level structure",
+    content: "",
+  },
+  { id: 2, title: "Suggested roadmap", content: "" },
+];
 
 export default function OverviewPage() {
-  const [cards, setCards] = useState<CardType[]>([
-    { id: 0, title: "Filler", content: "Static filler content" },
-    {
-      id: 1,
-      title: "Stacks used, repository functionality, and high level structure",
-      content: "",
-    },
-    { id: 2, title: "Suggested roadmap", content: "" },
-  ]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cards, setCards] = useState(defaultCards);
 
-  const [currentPage, setCurrentPage] = useState(0);
-
+  // Change slide on pagination click
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
+  async function initializeCards() {
+    const newCards = [...cards];
+    const promises = cards.map((card) => {
+      // generate overview
+      if (card.id == 1) {
+        return llmGenNoInput("albonwu", "cascade", "overview").then(
+          (message) => {
+            newCards[1].content = message;
+          }
+        );
+      } else if (card.id == 2) {
+        return llmGenNoInput("albonwu", "cascade", "roadmap").then(
+          (message) => {
+            newCards[2].content = message;
+          }
+        );
+      }
+    });
+
+    await Promise.all(promises);
+    setCards(newCards);
+  }
+
   useEffect(() => {
-    async function initializeCards() {
-      await initLlm("albonwu", "cascade");
-
-      const updatedCards = [...cards];
-
-      if (updatedCards.find((card) => card.id === 1)) {
-        const overviewContent = await llmGenNoInput("albonwu", "cascade", "overview");
-        updatedCards[1].content = overviewContent;
-      }
-      if (updatedCards.find((card) => card.id === 2)) {
-        const roadmapContent = await llmGenNoInput("albonwu", "cascade", "roadmap");
-        updatedCards[2].content = roadmapContent;
-      }
-      setCards(updatedCards);
-    }
-
     initializeCards();
-  }, []); 
+  }, []);
 
   const showCurrPage = () => {
     const card = cards[currentPage];
@@ -90,10 +88,16 @@ export default function OverviewPage() {
           </CardHeader>
           <Divider />
           <CardBody>
-            {card.content ? (
-              card.content
+            {cards[currentPage]?.content ? (
+              <pre className="whitespace-pre-wrap break-all">
+                {cards[currentPage].content}
+              </pre>
             ) : (
-              <div>Loading...</div>
+              <>
+                <Skeleton className="h-4 w-full mb-2 rounded-lg" />
+                <Skeleton className="h-4 w-full mb-2 rounded-lg" />
+                <Skeleton className="h-4 w-full rounded-lg" />
+              </>
             )}
           </CardBody>
         </Card>
@@ -107,15 +111,15 @@ export default function OverviewPage() {
       {showCurrPage()}
       <div className="flex justify-center pt-6">
         <Pagination
-          color="primary"
-          total={cards.length}
-          page={currentPage}
-          onChange={handlePageChange}
           showControls
+          color="primary"
+          page={currentPage}
+          total={2} // Total number of pages
+          onChange={handlePageChange}
         />
       </div>
       <br />
-      <NextLink href="/explorer">Click to go to explorer!</NextLink>
+      <NextLink href="/explorer">click to go to explorer!</NextLink>
     </div>
   );
 }

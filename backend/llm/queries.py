@@ -37,6 +37,15 @@ def get_query(query_type, fd="") -> str:
             + fd
             + ". Be as specific to this particular file/directory as you can - do not include functionality outside its scope - but the last two sentences of your response should describe the files/directories it most closely interacts with. Provide a definitive answer and do not hedge. You may not use terms like 'likely' or 'possibly.'"
         )
+    elif query_type == "brief":
+        if fd == "":
+            return "Summarize briefly (2-3 sentences) the purpose and application of this repository to someone who has not seen it before."
+        else:
+            return (
+                "Summarize very briefly (1-2 sentences) what the file/directory at "
+                + fd
+                + "does in relation to this repository. Your answer should be understandable to someone who has never seen this repository structure before."
+            )
     elif query_type == "dependencies":
         return (
             "Return two lists. Do not elaborate beyond listing the file paths. In one, list at most three files that the file "
@@ -48,6 +57,13 @@ def get_query(query_type, fd="") -> str:
 
 
 chat_session = None
+
+
+def try_init(username, repo):
+    global chat_session
+    if chat_session is None:
+        url = f"https://github.com/{username}/{repo}"
+        chat_init(url)
 
 
 def chat_init(repo_url: str) -> None:
@@ -94,6 +110,15 @@ def query_fd(fd_name):
     Returns the summary of a specific file or directory path given by fd_name
     """
     request = get_query("fd", fd_name)
+    response = chat_session.send_message(request)
+    return response.text
+
+
+def query_brief(fd_name):
+    """
+    Returns the summary of a specific file or directory path given by fd_name
+    """
+    request = get_query("brief", fd_name)
     response = chat_session.send_message(request)
     return response.text
 
