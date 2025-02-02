@@ -29,8 +29,12 @@ The backend was developed using Flask, and we stored the directory structure in 
 ## Challenges we ran into
 Setting up the LLM was particularly challenging, especially because we had to set up a corresponding Flask endpoint for each kind of operation we performed with it. We also ran into difficulties with escape characters when testing our API.
 
+Another issue we ran into a lot was separating storage and context by repo. We did a lot of our frontend development initially with a hardcoded test repo and things worked relatively quickly, but later changing all the routes and forwarding arguments became a nightmare to debug.
+
 ## Accomplishments that we're proud of
 Providing a model with the context of an entire repo is expensive, but we managed to optimize that down to once per session. We also managed space efficiently in MongoDB Atlas.
 
+We also did a lot better than we though we could do with the UI - it ended up looking pretty good!
+
 ## What's next for Altair
-More advanced AI agents, more metrics, more user testing.
+More advanced AI agents, more metrics, more user testing. Faster backends!
