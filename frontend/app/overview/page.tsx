@@ -1,69 +1,78 @@
 "use client";
 
 import { title } from "@/components/primitives";
-import NextLink from "next/link"
+import NextLink from "next/link";
 import { useState, useEffect } from "react";
-import {Pagination, PaginationItem, PaginationCursor} from "@heroui/pagination";
-import {Card, CardHeader, CardBody, CardFooter} from "@heroui/card";
-import {Divider} from "@heroui/divider";
-import { initialize } from "next/dist/server/lib/render-server";
 
-async function initLlm(user: any, repo: any) {
-  const res = await fetch(`http://127.0.0.1:5000/init/${user}/${repo}`, {
-    method: "POST",
-  });
-  if (res.ok) {
-    const data = await res.json(); 
-    return data.message;
-  }
-}
+import {
+  Pagination,
+  PaginationItem,
+  PaginationCursor,
+} from "@heroui/pagination";
+import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
+import { Divider } from "@heroui/divider";
+import { initialize } from "next/dist/server/lib/render-server";
+import { Skeleton } from "@heroui/react";
 
 async function llmGenNoInput(user: any, repo: any, query: any) {
-  const res = await fetch(`http://127.0.0.1:5000/run/${user}/${repo}/${query}`, {
-    method: "POST",
-  });
+  const res = await fetch(
+    `http://127.0.0.1:5000/run/${user}/${repo}/${query}`,
+    {
+      method: "POST",
+    }
+  );
+
   if (res.ok) {
-    const data = await res.json(); 
+    const data = await res.json();
+
     return data.data;
   }
 }
 
-
-const cards = [
-  { id: 0, title: "filler", content: ""},
-  { id: 1, title: "Stacks used, repository functionality, and high level strucutre", content: "" },
+const defaultCards = [
+  { id: 0, title: "filler", content: "" },
+  {
+    id: 1,
+    title: "Stacks used and high level structure",
+    content: "",
+  },
   { id: 2, title: "Suggested roadmap", content: "" },
 ];
 
-async function initializeCards() {
-  await initLlm("albonwu", "cascade");
-  const promises = cards.map((card) => {
-    // generate overview
-    if (card.id == 1) {
-      return llmGenNoInput("albonwu", "cascade", "overview").then((message) => {
-        card.content = message;
-      });
-    }
-    else if (card.id == 2) {
-      return llmGenNoInput("albonwu", "cascade", "roadmap").then((message) => {
-        card.content = message;
-      });
-    }
-  })
-  await Promise.all(promises);
-}
-
-
 export default function OverviewPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [cards, setCards] = useState(defaultCards);
 
   // Change slide on pagination click
-  const handlePageChange = (page : number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-  
+
+  async function initializeCards() {
+    const newCards = [...cards];
+    const promises = cards.map((card) => {
+      // generate overview
+      if (card.id == 1) {
+        return llmGenNoInput("albonwu", "cascade", "overview").then(
+          (message) => {
+            newCards[1].content = message;
+          }
+        );
+      } else if (card.id == 2) {
+        return llmGenNoInput("albonwu", "cascade", "roadmap").then(
+          (message) => {
+            newCards[2].content = message;
+          }
+        );
+      }
+    });
+
+    await Promise.all(promises);
+    setCards(newCards);
+  }
+
   useEffect(() => {
-    {initializeCards();}
+    initializeCards();
   }, []);
 
   const showCurrPage = () => {
@@ -75,28 +84,39 @@ export default function OverviewPage() {
               <p className="text-md">{cards[currentPage].title}</p>
             </div>
           </CardHeader>
-          <Divider/>
+          <Divider />
           <CardBody>
-            {cards[currentPage].content}
+            {cards[currentPage]?.content ? (
+              <pre className="whitespace-pre-wrap break-all">
+                {cards[currentPage].content}
+              </pre>
+            ) : (
+              <>
+                <Skeleton className="h-4 w-full mb-2 rounded-lg" />
+                <Skeleton className="h-4 w-full mb-2 rounded-lg" />
+                <Skeleton className="h-4 w-full rounded-lg" />
+              </>
+            )}
           </CardBody>
         </Card>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div>
-    <h1 className={title()}>Overview</h1>
-      {showCurrPage()}        
+      <h1 className={title()}>Overview</h1>
+      {showCurrPage()}
       <div className="flex justify-center pt-6">
-      <Pagination color="primary"
-        total={2} // Total number of pages
-        page={currentPage}
-        onChange={handlePageChange}
-        showControls
-      />
+        <Pagination
+          showControls
+          color="primary"
+          page={currentPage}
+          total={2} // Total number of pages
+          onChange={handlePageChange}
+        />
       </div>
-      <br/>
+      <br />
       <NextLink href="/explorer">click to go to explorer!</NextLink>
     </div>
   );

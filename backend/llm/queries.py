@@ -25,7 +25,7 @@ model = genai.GenerativeModel(
 def get_query(query_type, fd="") -> str:
     if query_type == "overview":
         return (
-            "Do not talk about Repomix. In one paragraph (5-6 sentences), give an insightful and detailed summary of the project, including its stack, functionality, high-level structure, etc. Provide a definitive answer and do not hedge. You may not use terms like 'likely' or 'possibly.'",
+            "Do not talk about Repomix. In a short paragraph (2-4 sentences), give a summary of how the project is organized, making sure to list which languages/technologies are being used, and what the overall structure of the project is like.",
         )
     elif query_type == "roadmap":
         return (
