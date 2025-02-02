@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FireIcon, StarIcon } from "@heroicons/react/24/solid";
+import { CodeBracketIcon, FireIcon, StarIcon } from "@heroicons/react/24/solid";
 
 import { FileMetadata, type Filetree } from "@/types/index";
 import TreeNode from "@/components/TreeNode";
+import CodePreview from "@/components/CodePreview";
 
 const BACKEND_URL = "http://127.0.0.1:5000";
 const USERNAME = "albonwu";
@@ -47,7 +48,7 @@ export default function ExplorerPage() {
             className="flex items-center flex-col"
             onClick={() => handleNodeClick(".")}
           >
-            <StarIcon className="size-8" />.
+            <StarIcon className="size-8" />
           </button>
         </div>
 
@@ -115,6 +116,19 @@ export default function ExplorerPage() {
                 );
               })}
             </ul>
+          </>
+        )}
+
+        {/* {filetree?.[path] && filetree[path].type === "file" && (
+          <div>This shit is a file</div>
+        )} */}
+        {selectedInfo?.code && (
+          <>
+            <div className="flex gap-2 items-center">
+              <CodeBracketIcon className="size-6" />
+              <h2 className="text-lg font-bold">Code Preview</h2>
+            </div>
+            <CodePreview code={selectedInfo.code} onClick={() => {}} />
           </>
         )}
       </div>
