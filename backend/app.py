@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, request
 import requests
 from flask_cors import CORS
@@ -21,6 +20,7 @@ client = MongoClient(uri, server_api=ServerApi("1"))
 db = client["spartahack"]
 collection = db["files"]
 
+
 @app.route("/")
 def hello_world():
     # Send a ping to confirm a successful connection
@@ -31,10 +31,11 @@ def hello_world():
         print(e)
     return "<p>Hello, World!</p>"
 
+
 def get_file_code(owner, repo, file_path):
     url = f"https://raw.githubusercontent.com/{owner}/{repo}/main/{file_path}"
     response = requests.get(url)
-    
+
     if response.status_code == 200:
         return response.text
     else:
@@ -50,6 +51,9 @@ def traverse_to_tree(path):
         print(f"{parent, dirs, files = }")
         tree[parent] = {"name": parent, "type": "dir", "children": []}
         for dir in dirs:
+            if dir == ".git":
+                continue
+
             tree[parent]["children"].append({"name": dir, "type": "dir"})
         for file in files:
             tree[parent]["children"].append({"name": file, "type": "file"})
@@ -60,20 +64,40 @@ def traverse_to_tree(path):
 def analyze_repo(username: str, repo: str):
     print(f"{username = }")
     print(f"{repo = }")
+    db = client[username]
+    collection = db[repo]
 
     env = {}
 
     for parent, dirs, files in os.walk(".", topdown=False):
         if any(dir == ".git" for dir in parent.split("/")):
             continue
+
         print(f"{parent, dirs, files = }")
-        env[parent] = {"children": []}
+        env[parent] = {"_id": parent, "loc": 0}
         for file in files:
-            env[parent]["children"].append(file)
-            full_path = parent + "/" + file
-            env[full_path] = {"file": True}
+            full_name = parent + "/" + file
+            try:
+                line_count = len(open(full_name).readlines())
+            except Exception:
+                continue
+            env[full_name] = {"_id": full_name, "loc": line_count}
+            collection.insert_one(env[full_name])
+
+            env[parent]["loc"] += line_count
+
+        for dir in dirs:
+            if dir not in env:
+                continue
+            env[parent]["loc"] += env[dir].get("loc", 0)
+        collection.insert_one(env[parent])
 
     print(f"{env = }")
+
+
+def analyze_folder(path: str):
+
+    pass
 
 
 @app.route("/file/<path:file_path>", methods=["GET"])
@@ -87,9 +111,11 @@ def get_file(file_path):
         return jsonify(file_doc)
     return jsonify({"error": "File not found"}), 404
 
+
 @app.route("/code/<path:file_path>", methods=["GET"])
 def get_code(user="Ecpii", repo="bloch-m", file_path=""):
     return jsonify(get_file_code(user, repo, file_path))
+
 
 @app.route("/<username>/<repo>")
 def repo(username: str, repo: str):
@@ -116,7 +142,7 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
-    # analyze_repo(username, repo)
+    analyze_repo(username, repo)
     return traverse_to_tree(".")
 
     # return f"<h1>{username}</h1><h2>{repo}</h2>"
