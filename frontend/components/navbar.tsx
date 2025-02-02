@@ -68,21 +68,26 @@ export const Navbar = () => {
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           {isFile ? (
-            <NextLink className="font-bold text-inherit text-3xl" href="/">
+            <NextLink
+              className="font-bold text-inherit text-3xl"
+              href={`/explorer/${repoName}`}
+            >
               {pageTitle}
             </NextLink>
           ) : (
             <>
-              <img
-                alt="Logo"
-                className="w-8 h-8 inline-block"
-                src="/logo.png"
-              />
+              <NextLink href="/">
+                <img
+                  alt="Logo"
+                  className="w-8 h-8 inline-block"
+                  src="/logo.png"
+                />
+              </NextLink>
               <p className="font-bold text-inherit text-3xl">{pageTitle}</p>
             </>
           )}
           <br />
-          {isFile && (
+          {isFile && repoName && (
             <PathBreadcrumbs repoName={repoName} segments={splitPathname} />
           )}
         </NavbarBrand>
