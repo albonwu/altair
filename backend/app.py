@@ -135,7 +135,8 @@ def repo(username: str, repo: str):
     # clone repo or update it, cd into repo
     if not os.access(repo, os.W_OK):
         subprocess.run(
-            f"git clone git@github.com:{username}/{repo}",
+#            f"git clone git@github.com:{username}/{repo}",
+            f"git clone https://github.com/{username}/{repo}.git",
             shell=True,
             check=True,
         )
