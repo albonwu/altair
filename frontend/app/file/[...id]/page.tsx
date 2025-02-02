@@ -47,9 +47,6 @@ export default async function ProductPage({ params }: { params: { id: string[] }
   
   return (
     <>
-        <div className="flex">
-            <PathBreadcrumbs />
-        </div>
         <div className="flex flex-row gap-[5rem]">
             <div className="relative w-[50rem] bg-gray-900 text-white rounded-2xl overflow-x-auto">
                 <SyntaxHighlighter
