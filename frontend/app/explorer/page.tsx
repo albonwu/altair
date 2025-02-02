@@ -1,9 +1,9 @@
 "use client";
-import { FileMetadata, type Filetree } from "@/types/index";
 
 import { useEffect, useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
 
+import { FileMetadata, type Filetree } from "@/types/index";
 import TreeNode from "@/components/TreeNode";
 
 const BACKEND_URL = "http://127.0.0.1:5000";

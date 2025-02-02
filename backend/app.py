@@ -10,6 +10,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 from analysis import (
+    analyze_with_github,
     count_dir_commits,
     count_dir_lines,
     count_file_lines,
@@ -84,7 +85,7 @@ def analyze_repo(username: str, repo: str):
             env[full_name] = {"_id": full_name}
             env[full_name]["loc"] = count_file_lines(full_name)
             env[full_name]["commits"] = count_file_commits(full_name)
-            collection.insert_one(env[full_name])
+            # collection.insert_one(env[full_name])
 
         for dir in dirs:
             full_name = parent + "/" + dir
@@ -93,8 +94,9 @@ def analyze_repo(username: str, repo: str):
 
             env[full_name]["loc"] = count_dir_lines(full_name, env)
             env[full_name]["commits"] = count_dir_commits(full_name, env)
-            collection.insert_one(env[full_name])
+            # collection.insert_one(env[full_name])
 
+    analyze_with_github(username, repo, env)
     print(f"{env = }")
     return env
 
@@ -147,5 +149,5 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
-    # return analyze_repo(username, repo)
+    return analyze_repo(username, repo)
     return traverse_to_tree(".")

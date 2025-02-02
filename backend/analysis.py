@@ -1,5 +1,6 @@
 import subprocess
 import os
+import requests
 
 
 def count_file_lines(full_file_path: str) -> int:
@@ -42,3 +43,28 @@ def count_dir_commits(full_path, _):
     """
 
     return count_file_commits(full_path)
+
+
+def analyze_with_github(username, repo, env):
+    response = requests.get(
+        f"https://api.github.com/repos/{username}/{repo}/pulls?state=all&per_page=100",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    )
+
+    for key in env:
+        env[key]["prs"] = 0
+
+    for pr in response.json():
+        number = pr["number"]
+
+        files_response = requests.get(
+            f"https://api.github.com/repos/{username}/{repo}/pulls/{number}/files"
+        )
+
+        for file in files_response.json():
+            name = "./" + file["filename"]
+            if name in env:
+                env[name]["prs"] += 1
