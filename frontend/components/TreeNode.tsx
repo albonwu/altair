@@ -10,7 +10,7 @@ export default function TreeNode({
 }: NodeArguments) {
   return (
     <button
-      className={`flex items-center flex-row outline p-[5px] rounded-xl ${className}`}
+      className={`flex items-center flex-row outline p-[5px] gap-2 rounded-xl ${className}`}
       style={{ opacity: active ? "100%" : "50%" }}
       onClick={onClick}
     >

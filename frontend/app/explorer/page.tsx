@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { StarIcon } from "@heroicons/react/24/solid";
+import { FireIcon, StarIcon } from "@heroicons/react/24/solid";
 
 import { FileMetadata, type Filetree } from "@/types/index";
 import TreeNode from "@/components/TreeNode";
@@ -95,10 +95,13 @@ export default function ExplorerPage() {
 
         {hottest && (
           <>
-            <h2>Hottest Files</h2>
+            <div className="flex gap-2 items-center">
+              <FireIcon className="size-6" />
+              <h2 className="text-lg font-bold">Hottest Files</h2>
+            </div>
             <ul>
               {hottest.slice(0, 5).map((x) => (
-                <li key={x}>{x}</li>
+                <li key={x}> - {x}</li>
               ))}
             </ul>
           </>
