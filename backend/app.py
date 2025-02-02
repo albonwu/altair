@@ -14,7 +14,7 @@ from llm.queries import (
     query_overview,
     query_roadmap,
     query_fd,
-    query_dependencies
+    query_dependencies,
 )
 
 from analysis import (
@@ -101,6 +101,9 @@ def analyze_repo(username: str, repo: str):
             env[full_name]["loc"] = count_dir_lines(full_name, env)
             env[full_name]["commits"] = count_dir_commits(full_name, env)
 
+    env["."]["loc"] = count_dir_lines(".", env)
+    env["."]["commits"] = count_dir_commits(".", env)
+
     analyze_with_github(username, repo, env)
     add_hotness(env)
 
@@ -138,6 +141,13 @@ def get_hottest(username, repo, file_path):
     return sorted(
         list(results), key=lambda file: file["hotness"], reverse=True
     )
+
+
+@app.route("/metadata/<username>/<repo>/", methods=["GET"])
+def get_repo_information(username, repo):
+    db = client[username]
+    collection = db[repo]
+    return collection.find_one({"_id": "."})
 
 
 @app.route("/metadata/<username>/<repo>/<path:file_path>", methods=["GET"])
@@ -181,6 +191,7 @@ def repo(username: str, repo: str):
         os.mkdir(username)
     os.chdir(username)
 
+    do_initial_load = "reload" in request.args
     # clone repo or update it, cd into repo
     if not os.access(repo, os.W_OK):
         subprocess.run(
@@ -188,20 +199,22 @@ def repo(username: str, repo: str):
             shell=True,
             check=True,
         )
+        do_initial_load = True
     else:
         print("dont need to clone")
         # check if the repo is up to date (git pull if necessary)
         # if already up to date return early
     os.chdir(repo)
-    if "reload" in request.args:
+    if do_initial_load:
         database = client[username]
         collection = database[repo]
         collection.drop()
 
         analyze_repo(username, repo)
 
-    # todo: analyze repo and upload to db
-    return traverse_to_tree(".")
+    file_tree = traverse_to_tree(".")
+    # init_repo_data(username, repo)
+    return file_tree
 
 
 # ------------------ llm backend ------------------------
@@ -212,7 +225,7 @@ functions = {
     "overview": query_overview,
     "roadmap": query_roadmap,
     "fd": query_fd,
-    "dependencies": query_dependencies
+    "dependencies": query_dependencies,
 }
 
 

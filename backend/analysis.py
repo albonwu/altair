@@ -31,6 +31,8 @@ def count_dir_lines(full_path, env):
     """count lines in a dir, assuming that everything that is a child of the dir has been counted before"""
     lines = 0
     for child in os.listdir(full_path):
+        if child == ".git":
+            continue
         new_full = full_path + "/" + child
         lines += env[new_full]["loc"]
 
