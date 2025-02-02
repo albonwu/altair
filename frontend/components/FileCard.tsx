@@ -16,11 +16,10 @@ import { useEffect, useState } from "react";
 
 async function getMetadata(path: string) {
   try {
+    const encodedPath = encodeURIComponent(path);
     const res = await fetch(
-      `http://127.0.0.1:5000/metadata/albonwu/cascade/${path}`,
-      {
-        cache: "no-store",
-      }
+      `http://127.0.0.1:5000/metadata/albonwu/cascade/${encodedPath}`,
+      { cache: "no-store", mode: "cors" }
     );
 
     if (!res.ok) {
@@ -35,6 +34,34 @@ async function getMetadata(path: string) {
   }
 }
 
+async function getSummary(path: string) {
+  try {
+    const encodedPath = encodeURIComponent(path);
+    const res = await fetch(
+      `http://127.0.0.1:5000/run/albonwu/cascade/fd/${encodedPath}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ path }),
+        cache: "no-store",
+        mode: "cors",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch summary");
+    }
+
+    const response = await res.json();
+    return response?.data || "No summary available.";
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+    return "No summary available.";
+  }
+}
+
 export default function FileCard({
   data,
   isDir,
@@ -42,7 +69,7 @@ export default function FileCard({
   data: { title: string; path: string; description: string };
   isDir: boolean;
 }) {
-  const [properties, setProperties] = useState<{
+  const [metadata, setMetadata] = useState<{
     _id: string;
     loc: number;
     commits: number;
@@ -50,19 +77,21 @@ export default function FileCard({
     hotness: number;
   } | null>(null);
 
+  const [summary, setSummary] = useState<string | null>(null);
+
   useEffect(() => {
     let isMounted = true;
 
-    async function fetchData() {
+    async function fetchMetadata() {
       try {
-        const metadata = await getMetadata(data.path);
-        if (isMounted && metadata) {
-          setProperties({
-            _id: metadata._id || "",
-            loc: metadata.loc || 0,
-            commits: metadata.commits || 0,
-            prs: metadata.prs || [],
-            hotness: metadata.hotness || 0,
+        const fetchedMetadata = await getMetadata(data.path);
+        if (isMounted) {
+          setMetadata({
+            _id: fetchedMetadata._id || "",
+            loc: fetchedMetadata.loc || 0,
+            commits: fetchedMetadata.commits || 0,
+            prs: fetchedMetadata.prs || [],
+            hotness: fetchedMetadata.hotness || 0,
           });
         }
       } catch (error) {
@@ -70,7 +99,20 @@ export default function FileCard({
       }
     }
 
-    fetchData();
+    async function fetchSummary() {
+      try {
+        const fetchedSummary = await getSummary(data.path);
+        if (isMounted) {
+          setSummary(fetchedSummary);
+          console.log(fetchedSummary);
+        }
+      } catch (error) {
+        console.error("Error fetching summary:", error);
+      }
+    }
+
+    fetchMetadata();
+    fetchSummary();
 
     return () => {
       isMounted = false;
@@ -88,26 +130,26 @@ export default function FileCard({
           </p>
         </div>
         <div className="ml-auto flex flex-row">
-          {properties ? (
-            `${properties.loc} LoC`
+          {metadata ? (
+            `${metadata.loc} LoC`
           ) : (
             <Skeleton className="w-12 h-4" />
           )}
         </div>
         <br />
         <div>
-          {properties ? (
-            <Chip color="warning">{properties.prs.length} PRs</Chip>
+          {metadata ? (
+            <Chip color="warning">{metadata.prs.length} PRs</Chip>
           ) : (
             <Skeleton className="w-16 h-6 rounded-md" />
           )}
         </div>
       </CardHeader>
       <Divider />
-      <CardBody className="flex gap-3">
-        <p>{data.description}</p>
+      <CardBody className="flex flex-col gap-3">
+        <p className="font-bold text-sm text-gray-400">Summary:</p>
+        {summary ? <p>{summary["output"]}</p> : <Skeleton className="w-full h-6" />}
         <Divider />
-        <p>dependencies go here</p>
       </CardBody>
       <Divider />
       <CardFooter>
@@ -122,3 +164,4 @@ export default function FileCard({
     </Card>
   );
 }
+
