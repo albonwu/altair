@@ -1,5 +1,6 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import FileCard from "@/components/FileCard";
+import DirectoryContents from '@/components/DirectoryContents';
 
 async function getFileContent(id: any) {
   const res = await fetch(`http://127.0.0.1:5000/code/albonwu/cascade/${id.join("/")}`, { cache: 'no-store' });
@@ -49,8 +50,8 @@ export default async function ProductPage({ params }: { params: { id: string[] }
     <>
         <div className="flex flex-row gap-[5rem] mt-[-3rem]">
         {dir ? 
-            <div>
-                Hi! You're in a directory!
+            <div className="w-[50rem]">
+                <DirectoryContents path={params.id.join("/")}/>
             </div> :
             <div className="relative w-[50rem] bg-gray-900 text-white rounded-2xl overflow-x-auto">
                 <SyntaxHighlighter
