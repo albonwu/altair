@@ -220,7 +220,6 @@ functions = {
 def init_repo_data(username, repo):
     repo_url = f"https://github.com/{username}/{repo}"
     function = "init"
-    # Run the function
     functions[function](repo_url)
     return jsonify({"message": "Initialized chat"})
 
