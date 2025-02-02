@@ -103,7 +103,7 @@ export const Navbar = () => {
               <Link
                 isExternal
                 aria-label="Github"
-                href={siteConfig.links.github}
+                href={"https://github.com/albonwu/altair"}
               >
                 <GithubIcon className="text-default-500" />
               </Link>
