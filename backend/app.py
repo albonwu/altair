@@ -15,6 +15,8 @@ from llm.queries import (
     query_roadmap,
     query_fd,
     query_dependencies,
+    query_brief,
+    try_init,
 )
 
 from analysis import (
@@ -226,6 +228,7 @@ functions = {
     "roadmap": query_roadmap,
     "fd": query_fd,
     "dependencies": query_dependencies,
+    "brief": query_brief,
 }
 
 
@@ -260,12 +263,13 @@ def query_db(username, repo, function, input_data):
 
 
 @app.route(
-    "/run/<username>/<repo>/<function>",
-    defaults={"input_data": None},
-    methods=["POST"],
+    "/run/<username>/<repo>/<function>/",
+    defaults={"input_data": ""},
+    methods=["GET", "POST"],
 )
 @app.route(
-    "/run/<username>/<repo>/<function>/<path:input_data>", methods=["POST"]
+    "/run/<username>/<repo>/<function>/<path:input_data>",
+    methods=["GET", "POST"],
 )
 def run_script(username, repo, function, input_data):
     """Run a function and store the output in MongoDB if it doesn’t exist."""
@@ -279,13 +283,12 @@ def run_script(username, repo, function, input_data):
         "function": function,
         "input": input_data,
     }
-    existing_data = llm_collection.find_one(query, {"_id": 0})
-    if existing_data:
-        return jsonify({"source": "mongodb", "data": existing_data})
+    # existing_data = llm_collection.find_one(query, {"_id": 0})
+    # if existing_data:
+    #     return jsonify({"source": "mongodb", "data": existing_data})
 
     # Run the function
+    try_init(username, repo)
     output = functions[function](input_data)
-    output_doc = {**query, "output": output}
-    llm_collection.insert_one(output_doc)
 
     return jsonify({"source": "script", "data": output})

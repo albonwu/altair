@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { CodeBracketIcon, FireIcon, StarIcon } from "@heroicons/react/24/solid";
 import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
-import { Divider, Link } from "@heroui/react";
+import { Divider, Skeleton } from "@heroui/react";
 
 import { FileMetadata, type Filetree } from "@/types/index";
 import TreeNode from "@/components/TreeNode";
@@ -18,6 +18,8 @@ export default function ExplorerPage() {
   const [path, setPath] = useState(".");
   const [selectedInfo, setSelectedInfo] = useState<FileMetadata | null>(null);
   const [hottest, setHottest] = useState<[string] | null>(null);
+  const [description, setDescription] = useState<string | null>(null);
+  const [descriptionLoading, setDescriptionLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,10 +97,15 @@ export default function ExplorerPage() {
         </CardHeader>
         <Divider />
         <CardBody className="flex flex-col gap-4">
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p>
+          {descriptionLoading ? (
+            <>
+              <Skeleton className="w-full h-4 rounded-lg text-gray-300" />
+              <Skeleton className="w-full h-4 rounded-lg text-gray-300" />
+              <Skeleton className="w-full h-4 rounded-lg text-gray-300" />
+            </>
+          ) : (
+            <p>{description}</p>
+          )}
           {hottest && (
             <>
               <div className="flex gap-2 items-center">
@@ -165,6 +172,29 @@ export default function ExplorerPage() {
     } else {
       setHottest(null);
     }
+    fetchDescription(cutPath);
+  }
+
+  async function fetchDescription(path: string) {
+    setDescriptionLoading(true);
+    const response = await fetch(
+      `${BACKEND_URL}/run/${USERNAME}/${REPO}/brief/${path}`
+    );
+
+    if (!response.ok) {
+      console.error("error fecthing description");
+
+      setDescription(null);
+
+      return;
+    }
+
+    const data = await response.json();
+
+    console.log("data", data);
+
+    setDescription(data.data);
+    setDescriptionLoading(false);
   }
 
   async function fetchHottest(path: string) {

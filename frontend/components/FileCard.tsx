@@ -27,9 +27,11 @@ async function getMetadata(path: string) {
     }
 
     const data = await res.json();
+
     return data || {};
   } catch (error) {
     console.error("Error fetching metadata:", error);
+
     return {};
   }
 }
@@ -55,9 +57,11 @@ async function getSummary(path: string) {
     }
 
     const response = await res.json();
+
     return response?.data || "No summary available.";
   } catch (error) {
     console.error("Error fetching summary:", error);
+
     return "No summary available.";
   }
 }
@@ -85,6 +89,7 @@ export default function FileCard({
     async function fetchMetadata() {
       try {
         const fetchedMetadata = await getMetadata(data.path);
+
         if (isMounted) {
           setMetadata({
             _id: fetchedMetadata._id || "",
@@ -102,6 +107,7 @@ export default function FileCard({
     async function fetchSummary() {
       try {
         const fetchedSummary = await getSummary(data.path);
+
         if (isMounted) {
           setSummary(fetchedSummary);
           console.log(fetchedSummary);
@@ -130,11 +136,7 @@ export default function FileCard({
           </p>
         </div>
         <div className="ml-auto flex flex-row">
-          {metadata ? (
-            `${metadata.loc} LoC`
-          ) : (
-            <Skeleton className="w-12 h-4" />
-          )}
+          {metadata ? `${metadata.loc} LoC` : <Skeleton className="w-12 h-4" />}
         </div>
         <br />
         <div>
@@ -148,7 +150,11 @@ export default function FileCard({
       <Divider />
       <CardBody className="flex flex-col gap-3">
         <p className="font-bold text-sm text-gray-400">Summary:</p>
-        {summary ? <p>{summary["output"]}</p> : <Skeleton className="w-full h-6" />}
+        {summary ? (
+          <p>{summary["output"]}</p>
+        ) : (
+          <Skeleton className="w-full h-6" />
+        )}
         <Divider />
       </CardBody>
       <Divider />
@@ -164,4 +170,3 @@ export default function FileCard({
     </Card>
   );
 }
-
