@@ -19,6 +19,7 @@
   "@heroui/listbox": "2.3.9",
   "@heroui/navbar": "2.2.8",
   "@heroui/pagination": "^2.2.9",
+  "@heroui/react": "^2.6.14",
   "@heroui/snippet": "2.2.10",
   "@heroui/switch": "2.2.8",
   "@heroui/system": "2.4.6",

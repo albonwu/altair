@@ -40,23 +40,6 @@ def get_file_code(owner, repo, file_path):
     else:
         return f"Error: {response.status_code} - {response.text}"
 
-@app.route("/file/<path:file_path>", methods=["GET"])
-def get_file(file_path):
-    file_doc = collection.find_one({"path": file_path})
-    if file_doc:
-        del file_doc["_id"]
-        file_doc["code"] = get_file_code("Ecpii", "bloch-m", "src/App.vue")
-        return jsonify(file_doc)
-    return jsonify({"error": "File not found"}), 404
-
-#@app.route("/code/<path:file_path>", methods=["GET"])
-#def get_code(file_path):
-#    file_doc = collection.find_one({"path": file_path})
-#    if file_doc:
-#        print(file_doc)
-#        return jsonify(file_doc)
-#    return jsonify({"error": "File not found"}), 404
-
 
 def traverse_to_tree(path):
     os.chdir(path)
@@ -92,6 +75,21 @@ def analyze_repo(username: str, repo: str):
 
     print(f"{env = }")
 
+
+@app.route("/file/<path:file_path>", methods=["GET"])
+def get_file(file_path):
+    file_doc = collection.find_one({"path": file_path})
+    if file_doc:
+        user, repo = file_doc["repo_id"].split("/")
+        file_doc["code"] = get_file_code(user, repo, file_doc["path"])
+
+        del file_doc["_id"]
+        return jsonify(file_doc)
+    return jsonify({"error": "File not found"}), 404
+
+@app.route("/code/<path:file_path>", methods=["GET"])
+def get_code(user="Ecpii", repo="bloch-m", file_path=""):
+    return jsonify(get_file_code(user, repo, file_path))
 
 @app.route("/<username>/<repo>")
 def repo(username: str, repo: str):
