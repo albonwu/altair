@@ -68,3 +68,26 @@ def analyze_with_github(username, repo, env):
             name = "./" + file["filename"]
             if name in env:
                 env[name]["prs"].append(number)
+
+
+def add_hotness(env):
+    for parent, dirs, files in os.walk(".", topdown=False):
+        if any(dir == ".git" for dir in parent.split("/")):
+            continue
+
+        total_hotness = 0
+        for file in files:
+            full_name = parent + "/" + file
+            new_hotness = (
+                env[full_name]["commits"] + len(env[full_name]["prs"]) * 5
+            )
+            env[full_name]["hotness"] = new_hotness
+            total_hotness += new_hotness
+        for dir in dirs:
+            if dir == ".git":
+                continue
+            full_name = parent + "/" + dir
+            total_hotness += env[full_name]["hotness"]
+            # not possible to have an empty directory
+
+        env[parent]["hotness"] = total_hotness / (len(dirs) + len(files))

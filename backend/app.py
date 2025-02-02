@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-import requests
+import re
 from flask_cors import CORS
 
 import subprocess
@@ -10,13 +10,14 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 from llm.queries import (
-    chat_init, 
-    query_overview, 
-    query_roadmap, 
+    chat_init,
+    query_overview,
+    query_roadmap,
     query_fd,
 )
 
 from analysis import (
+    add_hotness,
     analyze_with_github,
     count_dir_commits,
     count_dir_lines,
@@ -92,7 +93,6 @@ def analyze_repo(username: str, repo: str):
             env[full_name] = {"_id": full_name}
             env[full_name]["loc"] = count_file_lines(full_name)
             env[full_name]["commits"] = count_file_commits(full_name)
-            # collection.insert_one(env[full_name])
 
         for dir in dirs:
             full_name = parent + "/" + dir
@@ -101,23 +101,39 @@ def analyze_repo(username: str, repo: str):
 
             env[full_name]["loc"] = count_dir_lines(full_name, env)
             env[full_name]["commits"] = count_dir_commits(full_name, env)
-            # collection.insert_one(env[full_name])
 
     analyze_with_github(username, repo, env)
-    print(f"{env = }")
+    add_hotness(env)
+
+    collection.insert_many(env.values())
     return env
 
 
 def list_immediate_children(username, repo, directory):
     os.chdir(f"{STARTING_DIR}/files/{username}/{repo}")
     try:
-        children = [item + ('/' if os.path.isdir(os.path.join(directory, item)) else '') 
-                    for item in os.listdir(directory)]
+        children = [
+            item
+            + ("/" if os.path.isdir(os.path.join(directory, item)) else "")
+            for item in os.listdir(directory)
+        ]
         return children
     except FileNotFoundError:
         return f"Error: Directory '{directory}' not found."
     except Exception as e:
         return f"Error: {e}"
+
+
+@app.route("/hottest/<username>/<repo>/<path:file_path>", methods=["GET"])
+def get_hottest(username, repo, file_path):
+    db = client[username]
+    collection = db[repo]
+    file_path = "./" + file_path
+
+    results = collection.find({"_id": {"$regex": f"^{re.escape(file_path)}"}})
+    return sorted(
+        list(results), key=lambda file: file["hotness"], reverse=True
+    )
 
 
 @app.route("/metadata/<username>/<repo>/<path:file_path>", methods=["GET"])
@@ -142,9 +158,11 @@ def get_file_information(username, repo, file_path):
 def get_code(username, repo, file_path):
     return jsonify(get_file_code(username, repo, file_path))
 
+
 @app.route("/children/<username>/<repo>/<path:file_path>", methods=["GET"])
 def get_children(username, repo, file_path):
     return jsonify(list_immediate_children(username, repo, file_path))
+
 
 @app.route("/repo/<username>/<repo>")
 def repo(username: str, repo: str):
@@ -171,20 +189,20 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
-    # return analyze_repo(username, repo)
+    return analyze_repo(username, repo)
     return traverse_to_tree(".")
 
 
-
 # ------------------ llm backend ------------------------
-llm_collection = db['llm']
+llm_collection = db["llm"]
 
 functions = {
     "init": chat_init,
     "overview": query_overview,
     "roadmap": query_roadmap,
-    "fd": query_fd
+    "fd": query_fd,
 }
+
 
 @app.route("/init/<username>/<repo>", methods=["POST"])
 def init_repo_data(username, repo):
@@ -194,23 +212,37 @@ def init_repo_data(username, repo):
     functions[function](repo_url)
     return jsonify({"message": "Initialized chat"})
 
-@app.route("/query/<username>/<repo>/<function>", defaults={"input_data": None}, methods=["GET"])
-@app.route("/query/<username>/<repo>/<function>/<path:input_data>", methods=["GET"])
+
+@app.route(
+    "/query/<username>/<repo>/<function>",
+    defaults={"input_data": None},
+    methods=["GET"],
+)
+@app.route(
+    "/query/<username>/<repo>/<function>/<path:input_data>", methods=["GET"]
+)
 def query_db(username, repo, function, input_data):
     """Check if data exists in MongoDB for specific parameters."""
     query = {
         "username": username,
         "repo": repo,
         "function": function,
-        "input": input_data
+        "input": input_data,
     }
     data = llm_collection.find_one(query, {"_id": 0})  # Find matching entry
     if data:
         return jsonify({"source": "mongodb", "data": data})
     return jsonify({"message": "No data found in MongoDB"})
 
-@app.route("/run/<username>/<repo>/<function>", defaults={"input_data": None}, methods=["POST"])
-@app.route("/run/<username>/<repo>/<function>/<path:input_data>", methods=["POST"])
+
+@app.route(
+    "/run/<username>/<repo>/<function>",
+    defaults={"input_data": None},
+    methods=["POST"],
+)
+@app.route(
+    "/run/<username>/<repo>/<function>/<path:input_data>", methods=["POST"]
+)
 def run_script(username, repo, function, input_data):
     """Run a function and store the output in MongoDB if it doesn’t exist."""
     if function not in functions:
@@ -221,7 +253,7 @@ def run_script(username, repo, function, input_data):
         "username": username,
         "repo": repo,
         "function": function,
-        "input": input_data
+        "input": input_data,
     }
     existing_data = llm_collection.find_one(query, {"_id": 0})
     if existing_data:
@@ -231,5 +263,5 @@ def run_script(username, repo, function, input_data):
     output = functions[function](input_data)
     output_doc = {**query, "output": output}
     llm_collection.insert_one(output_doc)
-    
+
     return jsonify({"source": "script", "data": output})
