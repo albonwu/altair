@@ -121,7 +121,7 @@ def get_code(username, repo, file_path):
     return jsonify(get_file_code(username, repo, file_path))
 
 
-@app.route("/<username>/<repo>")
+@app.route("/repo/<username>/<repo>")
 def repo(username: str, repo: str):
     if not os.access(f"{STARTING_DIR}/files", os.W_OK):
         os.mkdir(f"{STARTING_DIR}/files")
@@ -146,5 +146,5 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
-    return analyze_repo(username, repo)
+    # return analyze_repo(username, repo)
     return traverse_to_tree(".")

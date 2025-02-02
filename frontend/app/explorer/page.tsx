@@ -13,7 +13,9 @@ export default function ExplorerPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:5000/albonwu/cascade");
+        const response = await fetch(
+          "http://127.0.0.1:5000/repo/albonwu/cascade"
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
