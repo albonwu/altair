@@ -93,13 +93,15 @@ export default function ExplorerPage() {
           eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
 
-        <h2>Hottest Files</h2>
         {hottest && (
-          <ul>
-            {hottest.slice(0, 5).map((x) => (
-              <li key={x}>{x}</li>
-            ))}
-          </ul>
+          <>
+            <h2>Hottest Files</h2>
+            <ul>
+              {hottest.slice(0, 5).map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </div>
@@ -112,7 +114,11 @@ export default function ExplorerPage() {
     const cutPath = path.substring(2);
 
     await fetchSelectedInfo(cutPath);
-    await fetchHottest(cutPath);
+    if (filetree?.[path]?.type == "dir") {
+      await fetchHottest(cutPath);
+    } else {
+      setHottest(null);
+    }
   }
 
   async function fetchHottest(path: string) {
