@@ -1,5 +1,5 @@
 "use client";
-import type { Filetree, FileEntry, DirEntry } from "@/types/index";
+import type { Filetree } from "@/types/index";
 
 import { useEffect, useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
@@ -30,14 +30,12 @@ export default function ExplorerPage() {
     fetchData();
   }, []);
 
-  const info = filetree?.[path];
-
   return (
     <div
       className="flex items-stretch justify-center gap-4 w-full"
       style={{ height: "80vh" }}
     >
-      <div className="flex flex-grow h-full outline outline-2 outline-red-500 gap-4 overflow-scroll px-4">
+      <div className="flex flex-grow h-full gap-4 overflow-scroll px-4 bg-gray-500 bg-opacity-20">
         <div className="flex flex-col h-full justify-center gap-4">
           <button
             className="flex items-center flex-col"
@@ -77,8 +75,17 @@ export default function ExplorerPage() {
         })}
       </div>
 
-      <div className="flex flex-none w-[25rem] outline outline-2 outline-red-500">
-        preview box
+      <div className="flex flex-col flex-none w-[25rem] p-4 gap-2 bg-gray-500 bg-opacity-50">
+        <h1 className="font-bold text-xl text-wrap break-all">{path}</h1>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+          culpa qui officia deserunt mollit anim id est laborum.
+        </p>
       </div>
     </div>
   );
