@@ -132,7 +132,9 @@ def get_hottest(username, repo, file_path):
     collection = db[repo]
     file_path = "./" + file_path
 
-    results = collection.find({"_id": {"$regex": f"^{re.escape(file_path)}"}})
+    results = collection.find(
+        {"_id": {"$regex": f"^{re.escape(file_path)}.+"}}
+    )
     return sorted(
         list(results), key=lambda file: file["hotness"], reverse=True
     )
