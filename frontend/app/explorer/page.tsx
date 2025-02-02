@@ -82,7 +82,7 @@ export default function ExplorerPage() {
                     active={path.startsWith(fullName)}
                     className={`${
                       path === fullName
-                        ? "text-yellow-300 shadow-md"
+                        ? "text-yellow-400"
                         : "text-white"
                     } transition-all duration-200 hover:text-yellow-400 hover:shadow-lg`}
                     name={name}
@@ -96,7 +96,7 @@ export default function ExplorerPage() {
         })}
       </div>
 
-      <Card className="flex flex-col flex-none w-[25rem] p-4 gap-2 bg-gray-500 bg-opacity-50 overflow-y-scroll">
+      <Card className="flex flex-col flex-none w-[25rem] p-4 gap-2 bg-gray-500 overflow-y-scroll">
         <CardHeader className="font-bold text-xl text-wrap break-all">
           {path}
         </CardHeader>

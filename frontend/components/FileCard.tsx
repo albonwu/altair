@@ -14,6 +14,7 @@ import { Folder, FileText } from "lucide-react";
 import { Chip } from "@heroui/react";
 import { useEffect, useState } from "react";
 import NextLink from "next/link"
+import ReactMarkdown from "react-markdown";
 
 async function getMetadata(path: string) {
   try {
@@ -192,11 +193,11 @@ export default function FileCard({
         <p className="font-bold text-sm text-gray-400">Summary:</p>
         {summary ? 
             <>
-                <p className={expanded
+                <ReactMarkdown className={expanded
                         ? "transition-all duration-300"
                         : "line-clamp-4 transition-all duration-300"}>
                   {summary}
-                </p>
+                </ReactMarkdown>
                 <button
                   onClick={() => setExpanded((prev) => !prev)}
                   className="mt-2 text-blue-500 hover:underline"
