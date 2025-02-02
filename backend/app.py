@@ -9,6 +9,13 @@ from pathlib import Path
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
+from llm.queries import (
+    chat_init, 
+    query_overview, 
+    query_roadmap, 
+    query_fd,
+)
+
 from analysis import (
     count_dir_commits,
     count_dir_lines,
@@ -149,3 +156,63 @@ def repo(username: str, repo: str):
     # todo: analyze repo and upload to db
     # return analyze_repo(username, repo)
     return traverse_to_tree(".")
+
+
+
+# ------------------ llm backend ------------------------
+llm_collection = db['llm']
+
+functions = {
+    "init": chat_init,
+    "overview": query_overview,
+    "roadmap": query_roadmap,
+    "fd": query_fd
+}
+
+@app.route("/init/<username>/<repo>", methods=["POST"])
+def init_repo_data(username, repo):
+    repo_url = f"https://github.com/{username}/{repo}"
+    function = "init"
+    # Run the function
+    functions[function](repo_url)
+    return jsonify({"message": "Initialized chat"})
+
+@app.route("/query/<username>/<repo>/<function>", defaults={"input_data": None}, methods=["GET"])
+@app.route("/query/<username>/<repo>/<function>/<path:input_data>", methods=["GET"])
+def query_db(username, repo, function, input_data):
+    """Check if data exists in MongoDB for specific parameters."""
+    query = {
+        "username": username,
+        "repo": repo,
+        "function": function,
+        "input": input_data
+    }
+    data = llm_collection.find_one(query, {"_id": 0})  # Find matching entry
+    if data:
+        return jsonify({"source": "mongodb", "data": data})
+    return jsonify({"message": "No data found in MongoDB"})
+
+@app.route("/run/<username>/<repo>/<function>", defaults={"input_data": None}, methods=["POST"])
+@app.route("/run/<username>/<repo>/<function>/<path:input_data>", methods=["POST"])
+def run_script(username, repo, function, input_data):
+    """Run a function and store the output in MongoDB if it doesn’t exist."""
+    if function not in functions:
+        return jsonify({"error": "Invalid function name"}), 400
+
+    # Check if data already exists
+    query = {
+        "username": username,
+        "repo": repo,
+        "function": function,
+        "input": input_data
+    }
+    existing_data = llm_collection.find_one(query, {"_id": 0})
+    if existing_data:
+        return jsonify({"source": "mongodb", "data": existing_data})
+
+    # Run the function
+    output = functions[function](input_data)
+    output_doc = {**query, "output": output}
+    llm_collection.insert_one(output_doc)
+    
+    return jsonify({"source": "script", "data": output})
