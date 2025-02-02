@@ -34,10 +34,10 @@ export default function ExplorerPage() {
 
   return (
     <div
-      className="flex items-stretch justify-center gap-4 w-full"
-      style={{ height: "80vh" }}
+      className="flex items-stretch justify-center gap-4 w-full h-full"
+      style={{ height: "min(100%, 80vh)" }}
     >
-      <div className="flex flex-grow h-full gap-4 overflow-scroll px-4 bg-gray-500 bg-opacity-20">
+      <div className="flex flex-grow gap-[2rem] overflow-scroll px-4 bg-gray-500 bg-opacity-20">
         <div className="flex flex-col h-full justify-center gap-4">
           <button
             className="flex items-center flex-col"
@@ -57,19 +57,22 @@ export default function ExplorerPage() {
           return (
             <div
               key={partialPath}
-              className="flex flex-col h-full justify-center gap-4"
+              className="flex flex-col h-full justify-center gap-4 pt-[3rem]"
             >
               {levelInfo.children.map(({ name, type }) => {
                 const fullName = partialPath + "/" + name;
 
                 return (
-                  <TreeNode
-                    key={fullName}
-                    active={path.startsWith(fullName)}
-                    name={name}
-                    type={type}
-                    onClick={() => handleNodeClick(fullName)}
-                  />
+                    <TreeNode
+                      key={fullName}
+                      active={path.startsWith(fullName)}
+                      name={name}
+                      type={type}
+                      className={`${
+                        path === fullName ? "text-yellow-300 shadow-md" : "text-white"
+                      } transition-all duration-200 hover:text-yellow-400 hover:shadow-lg`}
+                      onClick={() => handleNodeClick(fullName)}
+                    />
                 );
               })}
             </div>
