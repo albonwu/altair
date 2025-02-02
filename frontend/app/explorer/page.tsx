@@ -1,5 +1,5 @@
 "use client";
-import type { Filetree } from "@/types/index";
+import { FileMetadata, type Filetree } from "@/types/index";
 
 import { useEffect, useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
@@ -13,7 +13,7 @@ const REPO = "cascade";
 export default function ExplorerPage() {
   const [filetree, setFiletree] = useState<Filetree | null>(null);
   const [path, setPath] = useState(".");
-  const [selectedInfo, setSelectedInfo] = useState(null);
+  const [selectedInfo, setSelectedInfo] = useState<FileMetadata | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,16 +66,18 @@ export default function ExplorerPage() {
                 const fullName = partialPath + "/" + name;
 
                 return (
-                    <TreeNode
-                      key={fullName}
-                      active={path.startsWith(fullName)}
-                      name={name}
-                      type={type}
-                      className={`${
-                        path === fullName ? "text-yellow-300 shadow-md" : "text-white"
-                      } transition-all duration-200 hover:text-yellow-400 hover:shadow-lg`}
-                      onClick={() => handleNodeClick(fullName)}
-                    />
+                  <TreeNode
+                    key={fullName}
+                    active={path.startsWith(fullName)}
+                    className={`${
+                      path === fullName
+                        ? "text-yellow-300 shadow-md"
+                        : "text-white"
+                    } transition-all duration-200 hover:text-yellow-400 hover:shadow-lg`}
+                    name={name}
+                    type={type}
+                    onClick={() => handleNodeClick(fullName)}
+                  />
                 );
               })}
             </div>
@@ -95,6 +97,13 @@ export default function ExplorerPage() {
           culpa qui officia deserunt mollit anim id est laborum.
         </p>
         <p>Lines of code: {selectedInfo?.loc}</p>
+        <p>Commits: {selectedInfo?.commits}</p>
+        {selectedInfo?.code && (
+          <>
+            <p>Code:</p>
+            <pre>{selectedInfo.code}</pre>
+          </>
+        )}
       </div>
     </div>
   );

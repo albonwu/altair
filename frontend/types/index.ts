@@ -29,4 +29,11 @@ export interface NodeArguments {
   type: FileType;
   onClick: any;
   active: boolean;
+  className: string;
+}
+
+export interface FileMetadata {
+  loc: number;
+  commits: number;
+  code: string;
 }

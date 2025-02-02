@@ -41,10 +41,7 @@ def hello_world():
 
 def get_file_code(owner, repo, file_path):
     os.chdir(f"{STARTING_DIR}/files/{owner}/{repo}")
-    try:
-        return open(file_path).read()
-    except Exception:
-        return "Unsupported format!"
+    return open(file_path).read()
 
 
 def traverse_to_tree(path):
@@ -110,7 +107,10 @@ def get_file_information(username, repo, file_path):
 
     file_doc = collection.find_one({"_id": file_path})
     if file_doc:
-        file_doc["code"] = get_file_code(username, repo, file_path)
+        try:
+            file_doc["code"] = get_file_code(username, repo, file_path)
+        except Exception:
+            pass
 
         del file_doc["_id"]
         return jsonify(file_doc)
