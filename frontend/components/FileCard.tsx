@@ -13,15 +13,15 @@ import {
 import { Folder, FileText } from "lucide-react";
 import { Chip } from "@heroui/react";
 import { useEffect, useState } from "react";
-import NextLink from "next/link"
+import NextLink from "next/link";
 import ReactMarkdown from "react-markdown";
 
-async function getMetadata(path: string) {
+async function getMetadata(username: string, repo: string, path: string) {
   try {
     const encodedPath = encodeURIComponent(path);
     const res = await fetch(
-      `http://127.0.0.1:5000/metadata/albonwu/cascade/${encodedPath}`,
-      { cache: "no-store" }
+      `http://127.0.0.1:5000/metadata/${username}/${repo}/${encodedPath}`,
+      { cache: "no-store", mode: "cors" }
     );
 
     if (!res.ok) {
@@ -36,11 +36,11 @@ async function getMetadata(path: string) {
   }
 }
 
-async function getSummary(path: string) {
+async function getSummary(username: string, repo: string, path: string) {
   try {
     const encodedPath = encodeURIComponent(path);
     const res = await fetch(
-      `http://127.0.0.1:5000/run/albonwu/cascade/fd/${encodedPath}`,
+      `http://127.0.0.1:5000/run/${username}/${repo}/fd/${encodedPath}`,
       {
         method: "POST",
         headers: {
@@ -56,9 +56,11 @@ async function getSummary(path: string) {
     }
 
     const response = await res.json();
+
     return response?.data || "No summary available.";
   } catch (error) {
     console.error("Error fetching summary:", error);
+
     return "No summary available.";
   }
 }
@@ -83,9 +85,11 @@ async function getDependencies(path: string) {
     }
 
     const response = await res.json();
+
     return response?.data || "No dependencies available.";
   } catch (error) {
     console.error("Error fetching dependencies:", error);
+
     return "No dependencies available.";
   }
 }
@@ -93,9 +97,13 @@ async function getDependencies(path: string) {
 export default function FileCard({
   data,
   isDir,
+  username,
+  repo,
 }: {
   data: { title: string; path: string; description: string };
   isDir: boolean;
+  username: string;
+  repo: string;
 }) {
   const [metadata, setMetadata] = useState<{
     _id: string;
@@ -114,7 +122,8 @@ export default function FileCard({
 
     async function fetchMetadata() {
       try {
-        const fetchedMetadata = await getMetadata(data.path);
+        const fetchedMetadata = await getMetadata(username, repo, data.path);
+
         if (isMounted) {
           setMetadata({
             _id: fetchedMetadata._id || "",
@@ -131,7 +140,8 @@ export default function FileCard({
 
     async function fetchSummary() {
       try {
-        const fetchedSummary = await getSummary(data.path);
+        const fetchedSummary = await getSummary(username, repo, data.path);
+
         if (isMounted) {
           setSummary(fetchedSummary);
           console.log(fetchedSummary);
@@ -144,6 +154,7 @@ export default function FileCard({
     async function fetchDependencies() {
       try {
         const fetchedDependencies = await getDependencies(data.path);
+
         if (isMounted) {
           setDependencies(fetchedDependencies);
           console.log(fetchedDependencies);
@@ -173,11 +184,7 @@ export default function FileCard({
           </p>
         </div>
         <div className="ml-auto flex flex-row">
-          {metadata ? (
-            `${metadata.loc} LoC`
-          ) : (
-            <Skeleton className="w-12 h-4" />
-          )}
+          {metadata ? `${metadata.loc} LoC` : <Skeleton className="w-12 h-4" />}
         </div>
         <br />
         <div>
@@ -191,63 +198,76 @@ export default function FileCard({
       <Divider />
       <CardBody className="flex flex-col gap-3">
         <p className="font-bold text-sm text-gray-400">Summary:</p>
-        {summary ? 
-            <>
-                <ReactMarkdown className={expanded
-                        ? "transition-all duration-300"
-                        : "line-clamp-4 transition-all duration-300"}>
-                  {summary}
-                </ReactMarkdown>
-                <button
-                  onClick={() => setExpanded((prev) => !prev)}
-                  className="mt-2 text-blue-500 hover:underline"
-                >
+        {summary ? (
+          <>
+            <ReactMarkdown
+              className={
+                expanded
+                  ? "transition-all duration-300"
+                  : "line-clamp-4 transition-all duration-300"
+              }
+            >
+              {summary}
+            </ReactMarkdown>
+            <button
+              onClick={() => setExpanded((prev) => !prev)}
+              className="mt-2 text-blue-500 hover:underline"
+            >
               {expanded ? "Read less" : "Read more"}
-                 </button>
-
-        </>
-                : <Skeleton className="w-full h-6" />}
-        </CardBody>
-        <Divider />
+            </button>
+          </>
+        ) : (
+          <Skeleton className="w-full h-6" />
+        )}
+      </CardBody>
+      <Divider />
       <CardBody className="flex flex-col gap-3">
         <p className="font-bold text-sm text-gray-400">Dependencies:</p>
         Backward:
         <br />
-{dependencies && (
-  <ul>
-    {dependencies
-      .split("\n")[0]          
-      .split(",")               
-      .map((path) => path.trim())
-      .filter((path) => path.length > 0)
-      .map((path, index) => (
-        <li key={index}>
-          <NextLink href={`/file/${path}`} target="_blank" rel="noopener noreferrer">
-            {path}
-          </NextLink>
-        </li>
-      ))}
-  </ul>
-)}
+        {dependencies && (
+          <ul>
+            {dependencies
+              .split("\n")[0]
+              .split(",")
+              .map((path) => path.trim())
+              .filter((path) => path.length > 0)
+              .map((path, index) => (
+                <li key={index}>
+                  <NextLink
+                    href={`/file/${path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {path}
+                  </NextLink>
+                </li>
+              ))}
+          </ul>
+        )}
         <Divider />
         Forward:
         <br />
-{dependencies && (
-  <ul>
-    {dependencies
-      .split("\n")[1]          
-      .split(",")               
-      .map((path) => path.trim())
-      .filter((path) => path.length > 0)
-      .map((path, index) => (
-        <li key={index}>
-          <NextLink href={`/file/${path}`} target="_blank" rel="noopener noreferrer">
-            {path}
-          </NextLink>
-        </li>
-      ))}
-  </ul>
-)}
+        {dependencies && (
+          <ul>
+            {dependencies
+              .split("\n")[1]
+              .split(",")
+              .map((path) => path.trim())
+              .filter((path) => path.length > 0)
+              .map((path, index) => (
+                <li key={index}>
+                  <NextLink
+                    href={`/file/${path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {path}
+                  </NextLink>
+                </li>
+              ))}
+          </ul>
+        )}
       </CardBody>
       <Divider />
       <CardFooter>
@@ -262,4 +282,3 @@ export default function FileCard({
     </Card>
   );
 }
-

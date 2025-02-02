@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Snippet } from "@heroui/snippet";
 import { Button } from "@heroui/button";
-import { title, subtitle } from "@/components/primitives";
-import { GithubIcon } from "@/components/icons";
 import { Input } from "@heroui/input";
 import { Spinner } from "@heroui/spinner";
-import { useRouter } from "next/navigation";
+
+import { title, subtitle } from "@/components/primitives";
+import { GithubIcon } from "@/components/icons";
+
+const GITHUB_REGEX =
+  /https?:\/\/(?:www\.)?github\.com\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_.-]+)/;
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -18,16 +22,30 @@ export default function Home() {
     if (!url.trim()) return; // Prevent empty submission
 
     setLoading(true);
+    const match = url.match(GITHUB_REGEX);
+
+    if (!match || match.length < 3) {
+      setLoading(false);
+
+      return;
+    }
+
+    const username = match[1];
+    const repo = match[2];
+
     try {
-      const res = await fetch("http://127.0.0.1:5000/init/albonwu/cascade", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repo_url: url }),
-      });
+      const res = await fetch(
+        `http://127.0.0.1:5000/init/${username}/${repo}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ repo_url: url }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to initialize repository");
 
-      router.push("/overview"); // Redirect after successful request
+      router.push(`/overview/${username}/${repo}`); // Redirect after successful request
     } catch (error) {
       console.error("Error:", error);
       setLoading(false); // Stop loading on error
@@ -50,17 +68,17 @@ export default function Home() {
       <div className="flex gap-1 w-96 mt-4">
         <Input
           placeholder="GitHub URL"
+          startContent={<GithubIcon size={20} />}
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          startContent={<GithubIcon size={20} />}
         />
       </div>
 
       {/* Browse Button with Loading Animation */}
       <div className="flex gap-4">
-        <Button color="primary" onPress={handleClick} isDisabled={loading}>
-          {loading ? <Spinner size="sm" color="white" /> : "Browse!"}
+        <Button color="primary" isDisabled={loading} onPress={handleClick}>
+          {loading ? <Spinner color="white" size="sm" /> : "Browse!"}
         </Button>
       </div>
 
@@ -72,4 +90,3 @@ export default function Home() {
     </section>
   );
 }
-

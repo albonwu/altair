@@ -1,19 +1,15 @@
 "use client";
 
-import { title } from "@/components/primitives";
 import NextLink from "next/link";
 import { useState, useEffect } from "react";
-
-import {
-  Pagination,
-  PaginationItem,
-  PaginationCursor,
-} from "@heroui/pagination";
-import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
+import { Pagination } from "@heroui/pagination";
+import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Divider } from "@heroui/divider";
-import { initialize } from "next/dist/server/lib/render-server";
 import { Skeleton } from "@heroui/react";
 import ReactMarkdown from "react-markdown";
+import { useParams } from "next/navigation";
+
+import { title } from "@/components/primitives";
 
 async function llmGenNoInput(user: any, repo: any, query: any) {
   const res = await fetch(
@@ -42,6 +38,7 @@ const defaultCards = [
 ];
 
 export default function OverviewPage() {
+  const params = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [cards, setCards] = useState(defaultCards);
 
@@ -55,13 +52,13 @@ export default function OverviewPage() {
     const promises = cards.map((card) => {
       // generate overview
       if (card.id == 1) {
-        return llmGenNoInput("albonwu", "cascade", "overview").then(
+        return llmGenNoInput(params.username, params.repo, "overview").then(
           (message) => {
             newCards[1].content = message;
           }
         );
       } else if (card.id == 2) {
-        return llmGenNoInput("albonwu", "cascade", "roadmap").then(
+        return llmGenNoInput(params.username, params.repo, "roadmap").then(
           (message) => {
             newCards[2].content = message;
           }
@@ -79,6 +76,7 @@ export default function OverviewPage() {
 
   const showCurrPage = () => {
     const card = cards[currentPage];
+
     return (
       <div className="flex justify-center pt-10">
         <Card className="w-[1000px] h-[400px]">
@@ -120,8 +118,9 @@ export default function OverviewPage() {
         />
       </div>
       <br />
-      <NextLink href="/explorer">click to go to explorer!</NextLink>
+      <NextLink href={`/explorer/${params.username}/${params.repo}`}>
+        click to go to explorer!
+      </NextLink>
     </div>
   );
 }
-

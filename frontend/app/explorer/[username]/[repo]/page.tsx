@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CodeBracketIcon, FireIcon, StarIcon } from "@heroicons/react/24/solid";
 import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
@@ -11,8 +11,6 @@ import TreeNode from "@/components/TreeNode";
 import CodePreview from "@/components/CodePreview";
 
 const BACKEND_URL = "http://127.0.0.1:5000";
-const USERNAME = "albonwu";
-const REPO = "cascade";
 
 export default function ExplorerPage() {
   const [filetree, setFiletree] = useState<Filetree | null>(null);
@@ -25,11 +23,14 @@ export default function ExplorerPage() {
   const [descriptionLoading, setDescriptionLoading] = useState<boolean>(false);
 
   const router = useRouter();
+  const params = useParams();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/repo/${USERNAME}/${REPO}`);
+        const response = await fetch(
+          `${BACKEND_URL}/repo/${params.username}/${params.repo}`
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -166,7 +167,7 @@ export default function ExplorerPage() {
   function jumpToFullPage() {
     const cutPath = path.substring(2);
 
-    router.push(`/file/${cutPath}`);
+    router.push(`/file/${params.username}/${params.repo}/${cutPath}`);
 
     // window.location.href = window.location.origin + "/file/" + cutPath;
   }
@@ -189,7 +190,7 @@ export default function ExplorerPage() {
   async function fetchDescription(path: string) {
     setDescriptionLoading(true);
     const response = await fetch(
-      `${BACKEND_URL}/run/${USERNAME}/${REPO}/brief/${path}`
+      `${BACKEND_URL}/run/${params.username}/${params.repo}/brief/${path}`
     );
 
     if (!response.ok) {
@@ -210,7 +211,7 @@ export default function ExplorerPage() {
 
   async function fetchHottest(path: string) {
     const response = await fetch(
-      `${BACKEND_URL}/hottest/${USERNAME}/${REPO}/${path}`
+      `${BACKEND_URL}/hottest/${params.username}/${params.repo}/${path}`
     );
 
     if (!response.ok) {
@@ -228,7 +229,7 @@ export default function ExplorerPage() {
 
   async function fetchSelectedInfo(path: string) {
     const response = await fetch(
-      `${BACKEND_URL}/metadata/${USERNAME}/${REPO}/${path}`
+      `${BACKEND_URL}/metadata/${params.username}/${params.repo}/${path}`
     );
 
     if (!response.ok) {
