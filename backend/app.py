@@ -33,8 +33,6 @@ STARTING_DIR = os.getcwd()
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi("1"))
-db = client["spartahack"]
-collection = db["files"]
 
 
 @app.route("/")
@@ -187,14 +185,19 @@ def repo(username: str, repo: str):
         # check if the repo is up to date (git pull if necessary)
         # if already up to date return early
     os.chdir(repo)
+    if "reload" in request.args:
+        database = client[username]
+        collection = database[repo]
+        collection.drop()
+
+        analyze_repo(username, repo)
 
     # todo: analyze repo and upload to db
-    return analyze_repo(username, repo)
     return traverse_to_tree(".")
 
 
 # ------------------ llm backend ------------------------
-llm_collection = db["llm"]
+llm_collection = client["spartahack"]["llm"]
 
 functions = {
     "init": chat_init,
