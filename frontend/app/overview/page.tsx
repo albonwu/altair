@@ -27,6 +27,7 @@ async function llmGenNoInput(user: any, repo: any, query: any) {
 
     return data.data;
   }
+  return "";
 }
 
 const defaultCards = [
@@ -76,12 +77,13 @@ export default function OverviewPage() {
   }, []);
 
   const showCurrPage = () => {
+    const card = cards[currentPage];
     return (
       <div className="flex justify-center pt-10">
         <Card className="w-[1000px] h-[400px]">
           <CardHeader>
             <div className="flex flex-col">
-              <p className="text-md">{cards[currentPage].title}</p>
+              <p className="text-md">{card.title}</p>
             </div>
           </CardHeader>
           <Divider />
@@ -121,3 +123,4 @@ export default function OverviewPage() {
     </div>
   );
 }
+

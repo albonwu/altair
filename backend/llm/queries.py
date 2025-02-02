@@ -25,11 +25,11 @@ model = genai.GenerativeModel(
 def get_query(query_type, fd="") -> str:
     if query_type == "overview":
         return (
-            "Do not talk about Repomix. In a short paragraph (2-4 sentences), give a summary of how the project is organized, making sure to list which languages/technologies are being used, and what the overall structure of the project is like.",
+            "Do not talk about Repomix. In one paragraph (2-3 sentences), give an insightful and detailed summary of the project, including its stack, functionality, high-level structure, etc. Provide a definitive answer and do not hedge. You may not use terms like 'likely' or 'possibly.'",
         )
     elif query_type == "roadmap":
         return (
-            "Based on your understanding of the directory structure and semantics of the project, construct an ordered list of 5-10 files or directories that you think form a ‘canonical’ order in which a new contributor should parse the repository to best understand it. For each item, give a one-sentence description of what it does, and a one-sentence justification for its position in the list. Provide a definitive answer and do not hedge. You may not use terms like 'likely' or 'possibly.'",
+            "Based on your understanding of the directory structure and semantics of the project, construct an ordered list of 5 files or directories that you think form a ‘canonical’ order in which a new contributor should parse the repository to best understand it. For each item, give a one-sentence description of what it does, and a one-sentence justification for its position in the list. Provide a definitive answer and do not hedge. You may not use terms like 'likely' or 'possibly.'",
         )
     elif query_type == "fd":
         return (
@@ -48,11 +48,11 @@ def get_query(query_type, fd="") -> str:
             )
     elif query_type == "dependencies":
         return (
-            "Return two bulleted lists. Do not elaborate beyond listing the file paths. In one, list at most three files that the file "
+            "Return two lists. Do not elaborate beyond listing the file paths. In one, list at most three files that the file "
             + fd
             + " depends on. In the other list, list at most three files that depend on "
             + fd
-            + "."
+            + ". Your answer should consist of two comma-separated lines, the first of which lists the files the current one depends on, and the second of which lists the files that depend on it."
         )
 
 

@@ -291,4 +291,6 @@ def run_script(username, repo, function, input_data):
     try_init(username, repo)
     output = functions[function](input_data)
 
+    print(jsonify({"source": "script", "data": output}))
+
     return jsonify({"source": "script", "data": output})
