@@ -103,9 +103,13 @@ def analyze_repo(username: str, repo: str):
     return env
 
 
-def analyze_folder(path: str):
+@app.route("/metadata/<username>/<repo>/<path:file_path>", methods=["GET"])
+def get_file_information(username, repo, file_path):
+    db = client[username]
+    collection = db[repo]
+    file_path = "./" + file_path
 
-    pass
+    return collection.find_one({"_id": file_path})
 
 
 @app.route("/file/<path:file_path>", methods=["GET"])
