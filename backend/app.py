@@ -40,13 +40,11 @@ def hello_world():
 
 
 def get_file_code(owner, repo, file_path):
-    url = f"https://raw.githubusercontent.com/{owner}/{repo}/main/{file_path}"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        return response.text
-    else:
-        return f"Error: {response.status_code} - {response.text}"
+    os.chdir(f"{STARTING_DIR}/files/{owner}/{repo}")
+    try:
+        return open(file_path).read()
+    except Exception:
+        return "Unsupported format!"
 
 
 def traverse_to_tree(path):
@@ -109,24 +107,18 @@ def get_file_information(username, repo, file_path):
     collection = db[repo]
     file_path = "./" + file_path
 
-    return collection.find_one({"_id": file_path})
-
-
-@app.route("/file/<path:file_path>", methods=["GET"])
-def get_file(file_path):
-    file_doc = collection.find_one({"path": file_path})
+    file_doc = collection.find_one({"_id": file_path})
     if file_doc:
-        user, repo = file_doc["repo_id"].split("/")
-        file_doc["code"] = get_file_code(user, repo, file_doc["path"])
+        file_doc["code"] = get_file_code(username, repo, file_path)
 
         del file_doc["_id"]
         return jsonify(file_doc)
     return jsonify({"error": "File not found"}), 404
 
 
-@app.route("/code/<path:file_path>", methods=["GET"])
-def get_code(user="Ecpii", repo="bloch-m", file_path=""):
-    return jsonify(get_file_code(user, repo, file_path))
+@app.route("/code/<username>/<repo>/<path:file_path>", methods=["GET"])
+def get_code(username, repo, file_path):
+    return jsonify(get_file_code(username, repo, file_path))
 
 
 @app.route("/<username>/<repo>")
@@ -156,5 +148,3 @@ def repo(username: str, repo: str):
     # todo: analyze repo and upload to db
     return analyze_repo(username, repo)
     return traverse_to_tree(".")
-
-    # return f"<h1>{username}</h1><h2>{repo}</h2>"
