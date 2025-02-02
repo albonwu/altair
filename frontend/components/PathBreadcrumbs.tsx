@@ -9,10 +9,9 @@ export default function PathBreadcrumbs({ segments }: { segments: string[] }) {
     <Breadcrumbs className="text-[#cdd6f4] flex items-center">
       {segments.map((segment, index) => {
         const href = "/file/" + segments.slice(0, index + 1).join("/");
-        console.log(href)
 
-        const isLast = index === segments.length - 1;
-        const Icon = isLast ? FileText : Folder;
+        const isFile = segments[segments.length - 1].includes(".") && index == segments.length - 1
+        const Icon = isFile ? FileText : Folder;
 
         return (
           <BreadcrumbItem key={href} className="flex items-center gap-1" size="lg">

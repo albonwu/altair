@@ -101,6 +101,18 @@ def analyze_repo(username: str, repo: str):
     return env
 
 
+def list_immediate_children(username, repo, directory):
+    os.chdir(f"{STARTING_DIR}/files/{username}/{repo}")
+    try:
+        children = [item + ('/' if os.path.isdir(os.path.join(directory, item)) else '') 
+                    for item in os.listdir(directory)]
+        return children
+    except FileNotFoundError:
+        return f"Error: Directory '{directory}' not found."
+    except Exception as e:
+        return f"Error: {e}"
+
+
 @app.route("/metadata/<username>/<repo>/<path:file_path>", methods=["GET"])
 def get_file_information(username, repo, file_path):
     db = client[username]
@@ -120,6 +132,9 @@ def get_file_information(username, repo, file_path):
 def get_code(username, repo, file_path):
     return jsonify(get_file_code(username, repo, file_path))
 
+@app.route("/children/<username>/<repo>/<path:file_path>", methods=["GET"])
+def get_children(username, repo, file_path):
+    return jsonify(list_immediate_children(username, repo, file_path))
 
 @app.route("/repo/<username>/<repo>")
 def repo(username: str, repo: str):

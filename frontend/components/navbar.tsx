@@ -51,7 +51,7 @@ export const Navbar = () => {
   } else if (clientPath === '/explorer') {
     pageTitle = "Explorer";
   } else {
-    splitPathname = ['/', ...clientPath.split("/").slice(2)];  // remove prefix and 'file'
+    splitPathname = clientPath.split("/").slice(2);  // remove prefix and 'file'
     pageTitle = splitPathname[splitPathname.length - 1];
     isFile = true;
   pageTitle = "albonwu/cascade"  // hardcoded for now
