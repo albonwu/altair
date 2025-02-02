@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: { params: { id: string[] }
             </div> :
             <div className="relative w-[50rem] text-white rounded-2xl overflow-x-auto">
                 <SyntaxHighlighter
-                    language={"python"}
+                    language={"javascript"}
                     showLineNumbers={true}
                     wrapLongLines={true}
                     wrapLines={true}
@@ -67,7 +67,7 @@ export default async function ProductPage({ params }: { params: { id: string[] }
             </div> }
 
             <FileCard 
-            data={{ title: params.id[params.id.length - 1], description: "A file. Gamers gaming gaming gaming epic pro gamer" }} 
+            data={{ title: params.id[params.id.length - 1], path: params.id.join("/"), description: "A file. Gamers gaming gaming gaming epic pro gamer" }} 
             isDir={dir}
             />
 

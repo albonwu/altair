@@ -20,6 +20,7 @@ import PathBreadcrumbs from "@/components/PathBreadcrumbs"
 
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from "react";
+import NextLink from "next/link"
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -62,7 +63,8 @@ export const Navbar = () => {
     <HeroUINavbar maxWidth="xl" className="p-4">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <p className="font-bold text-inherit text-3xl">{pageTitle}</p>
+          {isFile ? <NextLink href="/explorer" className="font-bold text-inherit text-3xl">{pageTitle}</NextLink> 
+              : <p className="font-bold text-inherit text-3xl">{pageTitle}</p>}
           <br />
           {isFile && <PathBreadcrumbs segments={splitPathname}/>}
         </NavbarBrand>
