@@ -51,7 +51,7 @@ export default function ExplorerPage() {
       className="flex items-stretch justify-center gap-4 w-full h-full"
       style={{ height: "min(100%, 80vh)" }}
     >
-      <div className="flex flex-grow gap-8 overflow-scroll px-4 bg-[#1E1E2E] rounded-2xl">
+      <div className="flex flex-grow gap-8 overflow-scroll px-4 bg-[#1E1E2E] bg-opacity-50 rounded-2xl">
         <div className="flex flex-col h-full justify-center gap-4">
           <button
             className="flex items-center flex-col"
@@ -84,7 +84,7 @@ export default function ExplorerPage() {
                       path === fullName
                         ? "text-yellow-400"
                         : "text-white"
-                    } transition-all duration-200 hover:text-yellow-400 hover:shadow-lg`}
+                    } transition-all duration-200 hover:opacity-100`}
                     name={name}
                     type={type}
                     onClick={() => handleNodeClick(fullName)}

@@ -64,13 +64,13 @@ export const Navbar = () => {
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           {isFile ? <NextLink href="/explorer" className="font-bold text-inherit text-3xl">{pageTitle}</NextLink> 
-              : <p className="font-bold text-inherit text-3xl">{pageTitle}</p>}
+              : <><img src="/logo.png" alt="Logo" className="w-8 h-8 inline-block" /><p className="font-bold text-inherit text-3xl">{pageTitle}</p></>}
           <br />
           {isFile && <PathBreadcrumbs segments={splitPathname}/>}
         </NavbarBrand>
       </NavbarContent>
 
-      {pageTitle === "wayne" && (
+      {pageTitle === "Altair" && (
         <>
           <NavbarContent className="hidden sm:flex basis-1/5 sm:basis-full" justify="end">
             <NavbarItem className="hidden sm:flex gap-2">
