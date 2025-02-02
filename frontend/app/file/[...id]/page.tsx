@@ -53,7 +53,7 @@ export default async function ProductPage({ params }: { params: { id: string[] }
             <div className="w-[50rem]">
                 <DirectoryContents path={params.id.join("/")}/>
             </div> :
-            <div className="relative w-[50rem] bg-gray-900 text-white rounded-2xl overflow-x-auto">
+            <div className="relative w-[50rem] text-white rounded-2xl overflow-x-auto">
                 <SyntaxHighlighter
                     language={"python"}
                     showLineNumbers={true}
