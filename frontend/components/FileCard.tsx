@@ -239,7 +239,7 @@ export default function FileCard({
               .map((path, index) => (
                 <li key={index}>
                   <NextLink
-                    href={`/file/${path}`}
+                    href={`/file/${username}/${repo}/${path}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

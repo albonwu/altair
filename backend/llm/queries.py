@@ -52,7 +52,7 @@ def get_query(query_type, fd="") -> str:
             + fd
             + " depends on. In the other list, list at most three files that depend on "
             + fd
-            + ". Your answer should consist of two comma-separated lines, the first of which lists the files the current one depends on, and the second of which lists the files that depend on it."
+            + ". Your answer should consist of two comma-separated lines, the first of which lists the files the current one depends on, and the second of which lists the files that depend on it. Do not include backticks in your answer. If no files exist, simply reply 'No dependencies found.' Do not, under any circumstance, list file paths that are not included in the context I have provided you. Do not simultaneously indicate that there are no dependencies if you are also listing files."
         )
 
 
