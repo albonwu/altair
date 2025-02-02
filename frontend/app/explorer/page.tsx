@@ -18,8 +18,10 @@ export default function ExplorerPage() {
   const [path, setPath] = useState(".");
   const [selectedInfo, setSelectedInfo] = useState<FileMetadata | null>(null);
   const [hottest, setHottest] = useState<[string] | null>(null);
-  const [description, setDescription] = useState<string | null>(null);
-  const [descriptionLoading, setDescriptionLoading] = useState<boolean>(true);
+  const [description, setDescription] = useState<string | null>(
+    "Welcome to the Explorer! Click on any node to get started."
+  );
+  const [descriptionLoading, setDescriptionLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
