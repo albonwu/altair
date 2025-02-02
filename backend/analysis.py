@@ -55,7 +55,7 @@ def analyze_with_github(username, repo, env):
     )
 
     for key in env:
-        env[key]["prs"] = 0
+        env[key]["prs"] = []
 
     for pr in response.json():
         number = pr["number"]
@@ -67,4 +67,4 @@ def analyze_with_github(username, repo, env):
         for file in files_response.json():
             name = "./" + file["filename"]
             if name in env:
-                env[name]["prs"] += 1
+                env[name]["prs"].append(number)

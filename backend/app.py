@@ -149,5 +149,5 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
-    return analyze_repo(username, repo)
+    # return analyze_repo(username, repo)
     return traverse_to_tree(".")
