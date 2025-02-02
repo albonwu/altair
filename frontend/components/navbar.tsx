@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Navbar as HeroUINavbar,
@@ -8,6 +8,7 @@ import {
   NavbarItem,
 } from "@heroui/navbar";
 import { Link } from "@heroui/link";
+
 import { Skeleton } from "@heroui/skeleton";
 
 import { siteConfig } from "@/config/site";
