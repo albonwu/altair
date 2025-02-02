@@ -8,14 +8,14 @@ export default function PathBreadcrumbs({ segments }: { segments: string[] }) {
   return (
     <Breadcrumbs className="text-[#cdd6f4] flex items-center">
       {segments.map((segment, index) => {
-        const href = "/" + segments.slice(0, index + 1).join("/");
+        const href = "/file/" + segments.slice(0, index + 1).join("/");
+        console.log(href)
 
-        // ✅ Determine icon type (Folder for directories, File for last item)
         const isLast = index === segments.length - 1;
         const Icon = isLast ? FileText : Folder;
 
         return (
-          <BreadcrumbItem key={href} className="flex items-center gap-1">
+          <BreadcrumbItem key={href} className="flex items-center gap-1" size="lg">
             <Icon size={16} className="text-default-500" />
             <NextLink href={href} className="hover:underline">
               {segment}

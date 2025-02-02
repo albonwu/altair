@@ -1,32 +1,39 @@
 "use client";
 
 import {Card, CardHeader, CardBody, CardFooter, Divider, Link, Image} from "@heroui/react";
+import { Folder, FileText } from "lucide-react";
+import {Chip} from "@heroui/react";
 
-export default function FileCard({ data }: { data: { title: string; description: string } }) {
+export default function FileCard({ data, isDir }: { data: { title: string; description: string }, isDir: boolean }) {
     return (
         <>
-      <Card className="max-w-[400px] bg-[#1E1E2E] border border-[#313244] text-[#cdd6f4] shadow-md rounded-2xl">
+      <Card className="w-[400px] h-[600px] ml-auto bg-[#1E1E2E] border border-[#313244] text-[#cdd6f4] shadow-md rounded-2xl">
       <CardHeader className="flex gap-3">
-        <Image
-          alt="heroui logo"
-          height={40}
-          radius="sm"
-          src="https://avatars.githubusercontent.com/u/86160567?s=200&v=4"
-          width={40}
-        />
+        {isDir ? <Folder /> : <FileText />}
         <div className="flex flex-col">
-          <p className="text-md">HeroUI</p>
-          <p className="text-small text-default-500">heroui.com</p>
+          <p className="text-md">{data.title}</p>
+          <p className="text-small text-default-500">{isDir ? "Directory" : "File"}</p>
+        </div>
+        <div className="ml-auto flex flex-row">
+        100 LoC
+        </div>
+        <br />
+        <div>
+            <Chip color="warning">3+ issues</Chip>
         </div>
       </CardHeader>
       <Divider />
-      <CardBody>
-        <p>Make beautiful websites regardless of your design experience.</p>
+      <CardBody className="flex gap-3">
+        <p>{data.description}</p>
+      <Divider />
+        <p>
+          dependencies go here
+        </p>
       </CardBody>
       <Divider />
       <CardFooter>
-        <Link isExternal showAnchorIcon href="https://github.com/heroui-inc/heroui">
-          Visit source code on GitHub.
+        <Link isExternal showAnchorIcon href="https://github.com/">
+            Original source on GitHub
         </Link>
       </CardFooter>
     </Card></>)
