@@ -41,7 +41,7 @@ export default function ExplorerPage() {
       className="flex items-stretch justify-center gap-4 w-full h-full"
       style={{ height: "min(100%, 80vh)" }}
     >
-      <div className="flex flex-grow gap-[2rem] overflow-scroll px-4 bg-gray-500 bg-opacity-20">
+      <div className="flex flex-grow gap-8 overflow-scroll px-4 bg-gray-500 bg-opacity-20">
         <div className="flex flex-col h-full justify-center gap-4">
           <button
             className="flex items-center flex-col"
@@ -99,10 +99,21 @@ export default function ExplorerPage() {
               <FireIcon className="size-6" />
               <h2 className="text-lg font-bold">Hottest Files</h2>
             </div>
-            <ul>
-              {hottest.slice(0, 5).map((x) => (
-                <li key={x}> - {x}</li>
-              ))}
+            <ul className="break-all">
+              {hottest.slice(0, 5).map((childPath) => {
+                const shortenedPath = childPath.substring(path.length + 1);
+
+                return (
+                  <li key={childPath}>
+                    <button
+                      className="underline"
+                      onClick={() => handleNodeClick(childPath)}
+                    >
+                      {shortenedPath}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}
