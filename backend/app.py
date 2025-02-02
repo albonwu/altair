@@ -9,6 +9,13 @@ from pathlib import Path
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
+from analysis import (
+    count_dir_commits,
+    count_dir_lines,
+    count_file_lines,
+    count_file_commits,
+)
+
 uri = "mongodb+srv://albonwu:albonwu@spartahack.ntkru.mongodb.net/?retryWrites=true&w=majority&appName=spartahack"
 
 app = Flask(__name__)
@@ -74,25 +81,26 @@ def analyze_repo(username: str, repo: str):
             continue
 
         print(f"{parent, dirs, files = }")
-        env[parent] = {"_id": parent, "loc": 0}
+        env[parent] = {"_id": parent, "loc": 0, "commits": 0}
+
         for file in files:
             full_name = parent + "/" + file
-            try:
-                line_count = len(open(full_name).readlines())
-            except Exception:
-                continue
-            env[full_name] = {"_id": full_name, "loc": line_count}
-            collection.insert_one(env[full_name])
 
-            env[parent]["loc"] += line_count
+            env[full_name] = {"_id": full_name}
+            env[full_name]["loc"] = count_file_lines(full_name)
+            env[full_name]["commits"] = count_file_commits(full_name)
 
         for dir in dirs:
-            if dir not in env:
+            full_name = parent + "/" + dir
+            if full_name not in env:
                 continue
-            env[parent]["loc"] += env[dir].get("loc", 0)
-        collection.insert_one(env[parent])
+
+            env[full_name]["loc"] = count_dir_lines(full_name, env)
+            env[full_name]["commits"] = count_dir_commits(full_name, env)
+        # collection.insert_one(env[parent])
 
     print(f"{env = }")
+    return env
 
 
 def analyze_folder(path: str):
@@ -142,7 +150,7 @@ def repo(username: str, repo: str):
     os.chdir(repo)
 
     # todo: analyze repo and upload to db
-    analyze_repo(username, repo)
+    return analyze_repo(username, repo)
     return traverse_to_tree(".")
 
     # return f"<h1>{username}</h1><h2>{repo}</h2>"
