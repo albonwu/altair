@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { CodeBracketIcon, FireIcon, StarIcon } from "@heroicons/react/24/solid";
+import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
+import { Divider, Link } from "@heroui/react";
 
 import { FileMetadata, type Filetree } from "@/types/index";
 import TreeNode from "@/components/TreeNode";
@@ -87,54 +89,61 @@ export default function ExplorerPage() {
         })}
       </div>
 
-      <div className="flex flex-col flex-none w-[25rem] p-4 gap-2 bg-gray-500 bg-opacity-50 overflow-y-scroll">
-        <h1 className="font-bold text-xl text-wrap break-all">{path}</h1>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        </p>
+      <Card className="flex flex-col flex-none w-[25rem] p-4 gap-2 bg-gray-500 bg-opacity-50 overflow-y-scroll">
+        <CardHeader className="font-bold text-xl text-wrap break-all">
+          {path}
+        </CardHeader>
+        <Divider />
+        <CardBody className="flex flex-col gap-4">
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          </p>
+          {hottest && (
+            <>
+              <div className="flex gap-2 items-center">
+                <FireIcon className="size-6" />
+                <h2 className="text-lg font-bold">Hottest Files</h2>
+              </div>
+              <ul className="break-all">
+                {hottest.slice(0, 5).map((childPath) => {
+                  const shortenedPath = childPath.substring(path.length + 1);
 
-        {hottest && (
-          <>
-            <div className="flex gap-2 items-center">
-              <FireIcon className="size-6" />
-              <h2 className="text-lg font-bold">Hottest Files</h2>
-            </div>
-            <ul className="break-all">
-              {hottest.slice(0, 5).map((childPath) => {
-                const shortenedPath = childPath.substring(path.length + 1);
+                  return (
+                    <li key={childPath}>
+                      <button
+                        className="underline"
+                        onClick={() => handleNodeClick(childPath)}
+                      >
+                        {shortenedPath}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
 
-                return (
-                  <li key={childPath}>
-                    <button
-                      className="underline"
-                      onClick={() => handleNodeClick(childPath)}
-                    >
-                      {shortenedPath}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-
-        {/* {filetree?.[path] && filetree[path].type === "file" && (
-          <div>This shit is a file</div>
-        )} */}
-        {selectedInfo?.code && (
-          <>
-            <div className="flex gap-2 items-center">
-              <CodeBracketIcon className="size-6" />
-              <h2 className="text-lg font-bold">Code Preview</h2>
-            </div>
-            <CodePreview
-              code={selectedInfo.code}
-              onClick={() => jumpToFullPage()}
-            />
-          </>
-        )}
-      </div>
+          {selectedInfo?.code && (
+            <>
+              <div className="flex gap-2 items-center">
+                <CodeBracketIcon className="size-6" />
+                <h2 className="text-lg font-bold">Code Preview</h2>
+              </div>
+              <CodePreview
+                code={selectedInfo.code}
+                onClick={() => jumpToFullPage()}
+              />
+            </>
+          )}
+        </CardBody>
+        <Divider />
+        <CardFooter className="flex w-full justify-center">
+          <button className="text-xl" onClick={() => jumpToFullPage()}>
+            View Source
+          </button>
+        </CardFooter>
+      </Card>
     </div>
   );
 
