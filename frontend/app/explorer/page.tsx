@@ -51,7 +51,7 @@ export default function ExplorerPage() {
       className="flex items-stretch justify-center gap-4 w-full h-full"
       style={{ height: "min(100%, 80vh)" }}
     >
-      <div className="flex flex-grow gap-8 overflow-scroll px-4 bg-gray-500 bg-opacity-20">
+      <div className="flex flex-grow gap-8 overflow-scroll px-4 bg-[#1E1E2E] rounded-2xl">
         <div className="flex flex-col h-full justify-center gap-4">
           <button
             className="flex items-center flex-col"

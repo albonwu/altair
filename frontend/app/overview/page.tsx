@@ -13,6 +13,7 @@ import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 import { initialize } from "next/dist/server/lib/render-server";
 import { Skeleton } from "@heroui/react";
+import ReactMarkdown from "react-markdown";
 
 async function llmGenNoInput(user: any, repo: any, query: any) {
   const res = await fetch(
@@ -89,9 +90,9 @@ export default function OverviewPage() {
           <Divider />
           <CardBody>
             {cards[currentPage]?.content ? (
-              <pre className="whitespace-pre-wrap break-all">
+              <ReactMarkdown className="whitespace-pre-wrap">
                 {cards[currentPage].content}
-              </pre>
+              </ReactMarkdown>
             ) : (
               <>
                 <Skeleton className="h-4 w-full mb-2 rounded-lg" />

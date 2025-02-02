@@ -28,11 +28,9 @@ async function getMetadata(path: string) {
     }
 
     const data = await res.json();
-
     return data || {};
   } catch (error) {
     console.error("Error fetching metadata:", error);
-
     return {};
   }
 }
@@ -57,11 +55,9 @@ async function getSummary(path: string) {
     }
 
     const response = await res.json();
-
     return response?.data || "No summary available.";
   } catch (error) {
     console.error("Error fetching summary:", error);
-
     return "No summary available.";
   }
 }
@@ -118,7 +114,6 @@ export default function FileCard({
     async function fetchMetadata() {
       try {
         const fetchedMetadata = await getMetadata(data.path);
-
         if (isMounted) {
           setMetadata({
             _id: fetchedMetadata._id || "",
@@ -136,7 +131,6 @@ export default function FileCard({
     async function fetchSummary() {
       try {
         const fetchedSummary = await getSummary(data.path);
-
         if (isMounted) {
           setSummary(fetchedSummary);
           console.log(fetchedSummary);
@@ -168,7 +162,7 @@ export default function FileCard({
   }, [data.path]);
 
   return (
-    <Card className="w-[400px] h-[600px] ml-auto bg-[#1E1E2E] border border-[#313244] text-[#cdd6f4] shadow-md rounded-2xl">
+    <Card className="w-[400px] h-[600px] ml-auto bg-[#1E1E2E] border border-[#313244] shadow-md rounded-2xl">
       <CardHeader className="flex gap-3">
         {isDir ? <Folder /> : <FileText />}
         <div className="flex flex-col">
@@ -178,7 +172,11 @@ export default function FileCard({
           </p>
         </div>
         <div className="ml-auto flex flex-row">
-          {metadata ? `${metadata.loc} LoC` : <Skeleton className="w-12 h-4" />}
+          {metadata ? (
+            `${metadata.loc} LoC`
+          ) : (
+            <Skeleton className="w-12 h-4" />
+          )}
         </div>
         <br />
         <div>
@@ -192,11 +190,23 @@ export default function FileCard({
       <Divider />
       <CardBody className="flex flex-col gap-3">
         <p className="font-bold text-sm text-gray-400">Summary:</p>
-        {summary ? (
-          <p>{summary["output"]}</p>
-        ) : (
-          <Skeleton className="w-full h-6" />
-        )}
+        {summary ? 
+            <>
+                <p className={expanded
+                        ? "transition-all duration-300"
+                        : "line-clamp-4 transition-all duration-300"}>
+                  {summary}
+                </p>
+                <button
+                  onClick={() => setExpanded((prev) => !prev)}
+                  className="mt-2 text-blue-500 hover:underline"
+                >
+              {expanded ? "Read less" : "Read more"}
+                 </button>
+
+        </>
+                : <Skeleton className="w-full h-6" />}
+        </CardBody>
         <Divider />
       <CardBody className="flex flex-col gap-3">
         <p className="font-bold text-sm text-gray-400">Dependencies:</p>
@@ -251,3 +261,4 @@ export default function FileCard({
     </Card>
   );
 }
+
