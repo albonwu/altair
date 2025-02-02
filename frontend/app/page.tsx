@@ -1,16 +1,39 @@
-import { Link } from "@heroui/link";
-import NextLink from "next/link"
-import { Snippet } from "@heroui/snippet";
-import { Code } from "@heroui/code";
-import {Button, ButtonGroup} from "@heroui/button";
-import { button as buttonStyles } from "@heroui/theme";
+"use client";
 
-import { siteConfig } from "@/config/site";
+import { useState } from "react";
+import { Snippet } from "@heroui/snippet";
+import { Button } from "@heroui/button";
 import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
-import {Input} from "@heroui/input";
+import { Input } from "@heroui/input";
+import { Spinner } from "@heroui/spinner";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const [loading, setLoading] = useState(false);
+  const [url, setUrl] = useState("");
+  const router = useRouter();
+
+  const handleClick = async () => {
+    if (!url.trim()) return; // Prevent empty submission
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://127.0.0.1:5000/init/albonwu/cascade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repo_url: url }),
+      });
+
+      if (!res.ok) throw new Error("Failed to initialize repository");
+
+      router.push("/overview"); // Redirect after successful request
+    } catch (error) {
+      console.error("Error:", error);
+      setLoading(false); // Stop loading on error
+    }
+  };
+
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
       <div className="inline-block max-w-xl text-center justify-center">
@@ -19,31 +42,34 @@ export default function Home() {
         <br />
         <span className={title()}>repository browsing.&nbsp;</span>
         <div className={subtitle({ class: "mt-4" })}>
-        Enter the link to a GitHub repo below:
+          Enter the link to a GitHub repo below:
         </div>
       </div>
 
-
+      {/* Input Field */}
       <div className="flex gap-1 w-96 mt-4">
-      <Input placeholder="GitHub URL" type="url" startContent={<GithubIcon size={20}/>} />
+        <Input
+          placeholder="GitHub URL"
+          type="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          startContent={<GithubIcon size={20} />}
+        />
       </div>
 
-      <div className="flex gap-4" color="blue">
-        <NextLink
-          href={"/overview"}
-        >
-          <Button color="primary">
-          Browse!
-          </Button>
-        </NextLink>
+      {/* Browse Button with Loading Animation */}
+      <div className="flex gap-4">
+        <Button color="primary" onPress={handleClick} isDisabled={loading}>
+          {loading ? <Spinner size="sm" color="white" /> : "Browse!"}
+        </Button>
       </div>
+
       <div className="mt-8">
         <Snippet hideCopyButton hideSymbol variant="bordered">
-          <span>
-            Or get started by replacing <Code>github.com</Code> in your repository's URL with <Code color="primary">wayne.com</Code>
-          </span>
+          <span>Built with ❤️ at SpartaHack X</span>
         </Snippet>
       </div>
     </section>
   );
 }
+
