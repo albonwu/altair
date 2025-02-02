@@ -173,7 +173,7 @@ export default function FileCard({
       {metadata ? `${metadata.loc} LoC` : <Skeleton className="w-12 h-4" />}
     </div>
     <br />
-    <div>{metadata ? <Chip color="warning">{metadata.hotness}&deg;</Chip> : <Skeleton className="w-16 h-6 rounded-md" />}</div>
+    <div>{metadata ? <Chip color={metadata.hotness < 15 ? "primary" : metadata.hotness < 30 ? "warning" : "danger"}>{metadata.hotness}&deg;</Chip> : <Skeleton className="w-16 h-6 rounded-md" />}</div>
   </CardHeader>
 
   <Divider />
