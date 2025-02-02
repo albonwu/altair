@@ -45,11 +45,12 @@ export const Navbar = () => {
   let pageTitle;
   let isFile;
   let splitPathname: string[] = [];
+  let repoName;
 
   if (clientPath === "/") {
     pageTitle = "Altair";
   } else {
-    const repoName = clientPath.split("/").slice(2, 4).join("/");
+    repoName = clientPath.split("/").slice(2, 4).join("/");
 
     if (clientPath.startsWith("/overview")) {
       pageTitle = "Overview: " + repoName;
@@ -57,7 +58,7 @@ export const Navbar = () => {
       pageTitle = "Explorer: " + repoName;
     } else {
       splitPathname = clientPath.split("/").slice(4); // remove prefix and 'file'
-      pageTitle = splitPathname[splitPathname.length - 1];
+      pageTitle = "File View: " + repoName;
       isFile = true;
     }
   }
@@ -81,7 +82,9 @@ export const Navbar = () => {
             </>
           )}
           <br />
-          {isFile && <PathBreadcrumbs segments={splitPathname} />}
+          {isFile && (
+            <PathBreadcrumbs repoName={repoName} segments={splitPathname} />
+          )}
         </NavbarBrand>
       </NavbarContent>
 

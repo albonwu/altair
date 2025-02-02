@@ -65,11 +65,11 @@ async function getSummary(username: string, repo: string, path: string) {
   }
 }
 
-async function getDependencies(path: string) {
+async function getDependencies(username: string, repo: string, path: string) {
   try {
     const encodedPath = encodeURIComponent(path);
     const res = await fetch(
-      `http://127.0.0.1:5000/run/albonwu/cascade/dependencies/${encodedPath}`,
+      `http://127.0.0.1:5000/run/${username}/${repo}/dependencies/${encodedPath}`,
       {
         method: "POST",
         headers: {
@@ -153,7 +153,11 @@ export default function FileCard({
 
     async function fetchDependencies() {
       try {
-        const fetchedDependencies = await getDependencies(data.path);
+        const fetchedDependencies = await getDependencies(
+          username,
+          repo,
+          data.path
+        );
 
         if (isMounted) {
           setDependencies(fetchedDependencies);

@@ -3,13 +3,18 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import FileCard from "@/components/FileCard";
 import DirectoryContents from "@/components/DirectoryContents";
 
-async function getFileContent(id: any) {
+async function getFileContent(username: string, repo: string, id: any) {
   const res = await fetch(
-    `http://127.0.0.1:5000/code/albonwu/cascade/${id.join("/")}`,
+    `http://127.0.0.1:5000/code/${username}/${repo}/${id.join("/")}`,
     { cache: "no-store" }
   );
 
+  console.log(`http://127.0.0.1:5000/code/${username}/${repo}/${id.join("/")}`);
+
   if (!res.ok) {
+    console.log("username", username);
+    console.log("repo", repo);
+    console.log("id", id);
     throw new Error("Failed to fetch file");
   }
 
@@ -19,7 +24,7 @@ async function getFileContent(id: any) {
 export default async function ProductPage({
   params,
 }: {
-  params: { id: string[] };
+  params: { username: string; repo: string; id: string[] };
 }) {
   let content;
 
@@ -44,8 +49,10 @@ export default async function ProductPage({
     number: { color: "#FFCB6B" }, // Numbers
   };
 
+  const { username, repo, id } = await params;
+
   try {
-    content = await getFileContent(params.id);
+    content = await getFileContent(username, repo, id);
   } catch (error) {
     console.error(error);
 
@@ -62,7 +69,11 @@ export default async function ProductPage({
       <div className="flex flex-row gap-[5rem] mt-[-3rem]">
         {dir ? (
           <div className="w-[50rem]">
-            <DirectoryContents path={params.id.join("/")} />
+            <DirectoryContents
+              path={params.id.join("/")}
+              repo={repo}
+              username={username}
+            />
           </div>
         ) : (
           <div className="relative w-[50rem] text-white rounded-2xl overflow-x-auto">
@@ -86,6 +97,8 @@ export default async function ProductPage({
             description: "A file. Gamers gaming gaming gaming epic pro gamer",
           }}
           isDir={dir}
+          repo={repo}
+          username={username}
         />
       </div>
     </>
