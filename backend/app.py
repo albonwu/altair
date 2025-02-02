@@ -280,12 +280,14 @@ def run_script(username, repo, function, input_data):
         "input": input_data,
     }
     existing_data = llm_collection.find_one(query, {"_id": 0})
-    if existing_data:
-        return jsonify({"source": "mongodb", "data": existing_data})
+    #if existing_data:
+    #    return jsonify({"source": "mongodb", "data": existing_data})
 
     # Run the function
     output = functions[function](input_data)
     output_doc = {**query, "output": output}
     llm_collection.insert_one(output_doc)
+
+    print(jsonify({"source": "script", "data": output}))
 
     return jsonify({"source": "script", "data": output})
