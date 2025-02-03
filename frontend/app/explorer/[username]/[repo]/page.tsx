@@ -67,52 +67,51 @@ export default function ExplorerPage() {
         {getParentLevels(path).map((partialPath, level) => {
           let levelInfo = filetree?.[partialPath];
 
-          if (!levelInfo || !("children" in levelInfo)) {
-            return <div key={partialPath} />;
-          }
-
           return (
             <div
               key={partialPath}
               className="flex flex-col h-full justify-center gap-4 pt-[3rem]"
             >
-              {levelInfo.children.map(({ name, type }, index) => {
-                const fullName = partialPath + "/" + name;
+              {levelInfo &&
+                "children" in levelInfo &&
+                levelInfo.children.map(({ name, type }) => {
+                  const fullName = partialPath + "/" + name;
 
-                return (
-                  <>
-                    <TreeNode
-                      key={fullName}
-                      active={path.startsWith(fullName)}
-                      className={`${
-                        path === fullName
-                          ? "text-yellow-400 drop-shadow-[0_12px_12px_rgba(250,196,17,0.5)]"
-                          : "text-white"
-                      } transition-all duration-300 hover:opacity-100`}
-                      id={
-                        path.startsWith(fullName)
-                          ? `node${level + 1}`
-                          : undefined
-                      }
-                      name={name}
-                      type={type}
-                      onClick={() => handleNodeClick(fullName)}
-                    />
-                    {path.startsWith(fullName) && (
-                      <Xarrow
-                        color="white"
-                        dashness={true}
-                        end={`node${level + 1}`}
-                        passProps={{ opacity: 0.75 }}
-                        path="straight"
-                        showHead={false}
-                        start={`node${level}`}
-                        strokeWidth={2}
+                  return (
+                    <>
+                      <TreeNode
+                        key={fullName}
+                        active={path.startsWith(fullName)}
+                        className={`${
+                          path === fullName
+                            ? "text-yellow-400 drop-shadow-[0_12px_12px_rgba(250,196,17,0.5)]"
+                            : "text-white"
+                        } transition-all duration-300 hover:opacity-100`}
+                        id={
+                          path.startsWith(fullName)
+                            ? `node${level + 1}`
+                            : undefined
+                        }
+                        name={name}
+                        type={type}
+                        onClick={() => handleNodeClick(fullName)}
                       />
-                    )}
-                  </>
-                );
-              })}
+                      {path.startsWith(fullName) && (
+                        <Xarrow
+                          key={`arrow${level + 1}`}
+                          color="white"
+                          dashness={true}
+                          end={`node${level + 1}`}
+                          passProps={{ opacity: 0.75 }}
+                          path="straight"
+                          showHead={false}
+                          start={`node${level}`}
+                          strokeWidth={2}
+                        />
+                      )}
+                    </>
+                  );
+                })}
             </div>
           );
         })}

@@ -20,12 +20,7 @@ async function getFileContent(username: string, repo: string, id: any) {
 
   return res.text(); // Assuming it's text content like Vue code
 }
-
-export default async function ProductPage({
-  params,
-}: {
-  params: { username: string; repo: string; id: string[] };
-}) {
+export default async function ProductPage({ params }: any) {
   let content;
 
   const customTheme = {
