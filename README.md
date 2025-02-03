@@ -5,16 +5,16 @@
 </h1>
 
 <a href="https://github.com/albonwu/altair/graphs/contributors">
-<img alt="People" src="https://img.shields.io/github/contributors/2kabhishek/bare-minimum?style=flat&color=ffaaf2&label=People"> </a>
+<img alt="People" src="https://img.shields.io/github/contributors/albonwu/altair?style=flat&color=ffaaf2&label=People"> </a>
 
 <a href="https://github.com/albonwu/altair/stargazers">
-<img alt="Stars" src="https://img.shields.io/github/stars/2kabhishek/bare-minimum?style=flat&color=98c379&label=Stars"></a>
+<img alt="Stars" src="https://img.shields.io/github/stars/albonwu/altair?style=flat&color=98c379&label=Stars"></a>
 
 <a href="https://github.com/albonwu/altair/watchers">
-<img alt="Watches" src="https://img.shields.io/github/watchers/2kabhishek/bare-minimum?style=flat&color=f5d08b&label=Watches"> </a>
+<img alt="Watches" src="https://img.shields.io/github/watchers/albonwu/altair?style=flat&color=f5d08b&label=Watches"> </a>
 
 <a href="https://github.com/albonwu/altair/pulse">
-<img alt="Last Updated" src="https://img.shields.io/github/last-commit/2kabhishek/bare-minimum?style=flat&color=e06c75&label="> </a>
+<img alt="Last Updated" src="https://img.shields.io/github/last-commit/albonwu/altair?style=flat&color=e06c75&label="> </a>
 
 <h3>Supercharge your repository browsing. ⚡️</h3>
 
