@@ -1,7 +1,7 @@
 <div align = "center">
 
 <h1>
-<a href="https://devpost.com/software/cascade-xrfscu">Altair</a>
+<a href="https://devpost.com/software/altair">Altair</a>
 </h1>
 
 <a href="https://github.com/albonwu/altair/graphs/contributors">
