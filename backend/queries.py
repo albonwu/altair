@@ -1,8 +1,8 @@
 import os
 import subprocess
-import io
 import google.generativeai as genai
 from dotenv import load_dotenv
+from utils import clone_and_cd_to_repo
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -61,14 +61,16 @@ def get_query(query_type, fd="") -> str:
 chat_session = None
 
 
-def try_init(username, repo):
+def try_init(base_dir, username, repo):
+    """
+    Initialize a chat seesion if it doesn't exist otherwise do nothing.
+    """
     global chat_session
     if chat_session is None:
-        url = f"https://github.com/{username}/{repo}"
-        chat_init(url)
+        chat_init(base_dir, username, repo)
 
 
-def chat_init(repo_url: str) -> None:
+def chat_init(base_dir, username, repo) -> None:
     """
     Initializes a chat instance for a given github repo url.
     """
@@ -76,22 +78,21 @@ def chat_init(repo_url: str) -> None:
     chat_session = model.start_chat(history=[])
 
     try:
-        os.chdir("/tmp/")
-        repomix_result = subprocess.run(
-            ["repomix", "--remote", repo_url],
-        )
+        clone_and_cd_to_repo(base_dir, username, repo)
+        subprocess.run("repomix", shell=True)
     # if there is an error with running repomix
     except subprocess.CalledProcessError as e:
+        print(f"Repomix Error: {e}")
         return False
 
-    file_in_memory = open("repomix-output.txt")
+    file_in_memory = open("repomix-output.txt", encoding="utf-8")
 
     message = "Eliminate uncertainty and state all answers with full confidence. Here is a GitHub repository structure and main files to be analyzed:\n"
 
     chat_session.send_message(f"{message}\n{file_in_memory.read()}")
 
 
-def query_overview(_=None):
+def query_overview(_):
     """
     Returns the text of the detailed summary of the overall github repo
     """
@@ -99,7 +100,7 @@ def query_overview(_=None):
     return response.text
 
 
-def query_roadmap(_=None):
+def query_roadmap(_):
     """
     Returns the text of the suggested overall roadmap
     """

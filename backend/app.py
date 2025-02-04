@@ -1,15 +1,16 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 import re
 from flask_cors import CORS
 
-import subprocess
 import os
 from pathlib import Path
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from llm.queries import (
+from dotenv import load_dotenv
+
+from queries import (
     chat_init,
     query_overview,
     query_roadmap,
@@ -28,15 +29,17 @@ from analysis import (
     count_file_commits,
 )
 
+from utils import clone_and_cd_to_repo, encode_path
 
-uri = "mongodb+srv://albonwu:albonwu@spartahack.ntkru.mongodb.net/?retryWrites=true&w=majority&appName=spartahack"
 
 app = Flask(__name__)
 CORS(app)
 STARTING_DIR = os.getcwd()
 
+load_dotenv()
+
 # Create a new client and connect to the server
-client = MongoClient(uri, server_api=ServerApi("1"))
+client = MongoClient(os.getenv("MONGODB_URL"), server_api=ServerApi("1"))
 
 
 @app.route("/")
@@ -55,21 +58,35 @@ def get_file_code(owner, repo, file_path):
     return open(file_path).read()
 
 
-def traverse_to_tree(path):
+def traverse_to_tree(path: Path):
     os.chdir(path)
     tree = {}
     for parent, dirs, files in os.walk("."):
-        if any(dir == ".git" for dir in parent.split("/")):
+        parent = Path(parent)
+        if ".git" in parent.parts:
             continue
-        print(f"{parent, dirs, files = }")
-        tree[parent] = {"name": parent, "type": "dir", "children": []}
+
+        tree[encode_path(parent)] = {
+            "name": encode_path(parent),
+            "type": "dir",
+            "children": [],
+        }
         for dir in dirs:
             if dir == ".git":
                 continue
 
-            tree[parent]["children"].append({"name": dir, "type": "dir"})
+            tree[encode_path(parent)]["children"].append(
+                {"name": dir, "type": "dir"}
+            )
         for file in files:
-            tree[parent]["children"].append({"name": file, "type": "file"})
+            if file == "repomix-output.txt":
+                continue
+
+            tree[encode_path(parent)]["children"].append(
+                {"name": file, "type": "file"}
+            )
+
+    print(f"{tree = }")
 
     return tree
 
@@ -83,33 +100,37 @@ def analyze_repo(username: str, repo: str):
     env = {}
 
     for parent, dirs, files in os.walk(".", topdown=False):
-        if any(dir == ".git" for dir in parent.split("/")):
+        parent = Path(parent)
+        if ".git" in parent.parts:
             continue
 
         print(f"{parent, dirs, files = }")
-        env[parent] = {"_id": parent, "loc": 0, "commits": 0}
+        env[parent] = {"_id": encode_path(parent), "loc": 0, "commits": 0}
 
         for file in files:
-            full_name = parent + "/" + file
+            full_path: Path = parent / file
 
-            env[full_name] = {"_id": full_name}
-            env[full_name]["loc"] = count_file_lines(full_name)
-            env[full_name]["commits"] = count_file_commits(full_name)
+            env[full_path] = {"_id": encode_path(full_path)}
+            env[full_path]["loc"] = count_file_lines(full_path)
+            env[full_path]["commits"] = count_file_commits(full_path)
 
         for dir in dirs:
-            full_name = parent + "/" + dir
-            if full_name not in env:
+            if dir == ".git":
+                continue
+            full_path: Path = parent / dir
+            if full_path not in env:
                 continue
 
-            env[full_name]["loc"] = count_dir_lines(full_name, env)
-            env[full_name]["commits"] = count_dir_commits(full_name, env)
+            env[full_path]["loc"] = count_dir_lines(full_path, env)
+            env[full_path]["commits"] = count_dir_commits(full_path, env)
 
-    env["."]["loc"] = count_dir_lines(".", env)
-    env["."]["commits"] = count_dir_commits(".", env)
+    env[Path()]["loc"] = count_dir_lines(Path(), env)
+    env[Path()]["commits"] = count_dir_commits(Path(), env)
 
     analyze_with_github(username, repo, env)
     add_hotness(env)
 
+    print(f"{env = }")
     collection.insert_many(env.values())
     return env
 
@@ -185,37 +206,9 @@ def get_children(username, repo, file_path):
 
 @app.route("/repo/<username>/<repo>")
 def repo(username: str, repo: str):
-    if not os.access(f"{STARTING_DIR}/files", os.W_OK):
-        os.mkdir(f"{STARTING_DIR}/files")
-    os.chdir(f"{STARTING_DIR}/files")
+    clone_and_cd_to_repo(STARTING_DIR, username, repo)
 
-    # make username folder if not exists, cd into it
-    if not os.access(username, os.W_OK):
-        os.mkdir(username)
-    os.chdir(username)
-
-    do_initial_load = "reload" in request.args
-    # clone repo or update it, cd into repo
-    if not os.access(repo, os.W_OK):
-        subprocess.run(
-            f"git clone git@github.com:{username}/{repo}",
-            shell=True,
-            check=True,
-        )
-        do_initial_load = True
-    else:
-        print("dont need to clone")
-        # check if the repo is up to date (git pull if necessary)
-        # if already up to date return early
-    os.chdir(repo)
-    if do_initial_load:
-        database = client[username]
-        collection = database[repo]
-        collection.drop()
-
-        analyze_repo(username, repo)
-
-    file_tree = traverse_to_tree(".")
+    file_tree = traverse_to_tree(Path())
     # init_repo_data(username, repo)
     return file_tree
 
@@ -235,12 +228,19 @@ functions = {
 
 @app.route("/init/<username>/<repo>", methods=["POST"])
 def init_repo_data(username, repo):
-    repo_url = f"https://github.com/{username}/{repo}"
-    function = "init"
-    functions[function](repo_url)
+    if clone_and_cd_to_repo(STARTING_DIR, username, repo):
+        # clean out potentially stale data
+        database = client[username]
+        collection = database[repo]
+        collection.drop()
+
+        analyze_repo(username, repo)
+
+    chat_init(STARTING_DIR, username, repo)
     return jsonify({"message": "Initialized chat"})
 
 
+# old caching system for ai queries that we removed so demoing would be more real-time
 @app.route(
     "/query/<username>/<repo>/<function>",
     defaults={"input_data": None},
@@ -273,7 +273,7 @@ def query_db(username, repo, function, input_data):
     methods=["GET", "POST"],
 )
 def run_script(username, repo, function, input_data):
-    """Run a function and store the output in MongoDB if it doesn’t exist."""
+    """Run a function and store the output in MongoDB if it doesn't exist."""
     if function not in functions:
         return jsonify({"error": "Invalid function name"}), 400
 
@@ -289,9 +289,7 @@ def run_script(username, repo, function, input_data):
     #     return jsonify({"source": "mongodb", "data": existing_data})
 
     # Run the function
-    try_init(username, repo)
+    try_init(STARTING_DIR, username, repo)
     output = functions[function](input_data)
-
-    print(jsonify({"source": "script", "data": output}))
 
     return jsonify({"source": "script", "data": output})

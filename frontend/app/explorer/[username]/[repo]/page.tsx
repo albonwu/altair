@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
@@ -38,9 +39,11 @@ export default function ExplorerPage() {
         }
         const result = await response.json();
 
+        console.log("result", result);
         setFiletree(result);
       } catch (err) {
         console.error(err);
+
         // todo: handle error
       }
     };
@@ -139,7 +142,7 @@ export default function ExplorerPage() {
                 <h2 className="text-lg font-bold">Hottest Files</h2>
               </div>
               <ul className="break-all">
-                {hottest.slice(0, 5).map((childPath) => {
+                {hottest.slice(0, 5).map(childPath => {
                   const shortenedPath = childPath.substring(path.length + 1);
 
                   return (
