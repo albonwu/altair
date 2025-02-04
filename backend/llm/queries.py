@@ -2,8 +2,10 @@ import os
 import subprocess
 import io
 import google.generativeai as genai
+from dotenv import load_dotenv
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Create the model
 generation_config = {

@@ -28,6 +28,7 @@ from analysis import (
     count_file_commits,
 )
 
+
 uri = "mongodb+srv://albonwu:albonwu@spartahack.ntkru.mongodb.net/?retryWrites=true&w=majority&appName=spartahack"
 
 app = Flask(__name__)
