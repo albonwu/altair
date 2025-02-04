@@ -71,7 +71,7 @@ export default function Home() {
           startContent={<GithubIcon size={20} />}
           type="url"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={e => setUrl(e.target.value)}
         />
       </div>
 
@@ -83,9 +83,20 @@ export default function Home() {
       </div>
 
       <div className="mt-8">
-        <Snippet hideCopyButton hideSymbol variant="bordered">
-          <span>Built with ❤️ at SpartaHack X</span>
-        </Snippet>
+        <a
+          href="https://devpost.com/software/altair"
+          rel="noreferrer"
+          target="_blank"
+        >
+          <Snippet
+            hideCopyButton
+            hideSymbol
+            className="hover:bg-gray-900 bg-opacity-10 transition-all"
+            variant="bordered"
+          >
+            <span>Built with ❤️ at SpartaHack X</span>
+          </Snippet>
+        </a>
       </div>
     </section>
   );
